@@ -55,13 +55,14 @@
 
                 <!-- Messages & Embeds Tab -->
                 <div class="tab-pane fade" id="messages" role="tabpanel" aria-labelledby="messages-tab">
+                    
                     <h5 class="mt-3">Embed Shop Chính</h5>
                     <div class="mb-3">
-                        <label for="shop_embed_title" class="form-label">Tiêu đề</label>
+                        <label class="form-label">Tiêu đề</label>
                         <input type="text" class="form-control" name="MESSAGES[SHOP_EMBED_TITLE]" value="{{ config.MESSAGES.get('SHOP_EMBED_TITLE', 'Shop Role') }}">
                     </div>
                     <div class="mb-3">
-                        <label for="shop_embed_description" class="form-label">Mô tả</label>
+                        <label class="form-label">Mô tả</label>
                         <textarea class="form-control" name="MESSAGES[SHOP_EMBED_DESCRIPTION]" rows="3">{{ config.MESSAGES.get('SHOP_EMBED_DESCRIPTION', 'Chào mừng') }}</textarea>
                     </div>
                     <div class="mb-3">
@@ -73,14 +74,104 @@
                         <input type="url" class="form-control" name="SHOP_EMBED_IMAGE_URL" value="{{ config.get('SHOP_EMBED_IMAGE_URL', '') }}">
                     </div>
                     <hr/>
+
+                    <h5 class="mt-3">Embed Thông Tin Tài Khoản</h5>
+                     <div class="mb-3">
+                        <label class="form-label">Tiêu đề</label>
+                        <input type="text" class="form-control" name="MESSAGES[ACCOUNT_INFO_TITLE]" value="{{ config.MESSAGES.get('ACCOUNT_INFO_TITLE', '') }}">
+                    </div>
+                     <div class="mb-3">
+                        <label class="form-label">Mô tả</label>
+                        <textarea class="form-control" name="MESSAGES[ACCOUNT_INFO_DESC]" rows="2">{{ config.MESSAGES.get('ACCOUNT_INFO_DESC', '') }}</textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label class="form-label">Tên trường "Số dư"</label>
+                            <input type="text" class="form-control" name="MESSAGES[BALANCE_FIELD_NAME]" value="{{ config.MESSAGES.get('BALANCE_FIELD_NAME', 'Số Dư Hiện Tại') }}">
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Giá trị trường "Số dư"</label>
+                            <input type="text" class="form-control" name="MESSAGES[BALANCE_FIELD_VALUE]" value="{{ config.MESSAGES.get('BALANCE_FIELD_VALUE', '{balance} coin') }}">
+                             <div class="form-text">Sử dụng <code>{balance}</code> để chèn số dư.</div>
+                        </div>
+                    </div>
+                    <hr/>
+
                     <h5 class="mt-3">Embed Tỷ lệ kiếm coin</h5>
+                     <div class="mb-3">
+                        <label class="form-label">Tiêu đề</label>
+                        <input type="text" class="form-control" name="MESSAGES[EARNING_RATES_TITLE]" value="{{ config.MESSAGES.get('EARNING_RATES_TITLE', '') }}">
+                    </div>
+                     <div class="mb-3">
+                        <label class="form-label">Mô tả chính</label>
+                        <textarea class="form-control" name="MESSAGES[EARNING_RATES_DESC]" rows="2">{{ config.MESSAGES.get('EARNING_RATES_DESC', '') }}</textarea>
+                    </div>
+                     <div class="mb-3">
+                        <label class="form-label">Nội dung ưu đãi Booster</label>
+                        <textarea class="form-control" name="MESSAGES[BOOSTER_MULTIPLIER_INFO]" rows="4">{{ config.MESSAGES.get('BOOSTER_MULTIPLIER_INFO', '') }}</textarea>
+                    </div>
                      <div class="mb-3">
                         <label class="form-label">URL Ảnh</label>
                         <input type="url" class="form-control" name="EARNING_RATES_IMAGE_URL" value="{{ config.get('EARNING_RATES_IMAGE_URL', '') }}">
                     </div>
+                    <hr/>
+
+                    <h5 class="mt-3">Embed Danh Sách Role</h5>
+                     <div class="mb-3">
+                        <label class="form-label">Tiêu đề</label>
+                        <input type="text" class="form-control" name="MESSAGES[SHOP_ROLES_TITLE]" value="{{ config.MESSAGES.get('SHOP_ROLES_TITLE', '') }}">
+                    </div>
                      <div class="mb-3">
                         <label class="form-label">Mô tả</label>
-                        <textarea class="form-control" name="MESSAGES[EARNING_RATES_DESC]" rows="5">{{ config.MESSAGES.get('EARNING_RATES_DESC', '') }}</textarea>
+                         <textarea class="form-control" name="MESSAGES[SHOP_ROLES_DESC]" rows="2">{{ config.MESSAGES.get('SHOP_ROLES_DESC', '') }}</textarea>
+                    </div>
+                     <div class="mb-3">
+                        <label class="form-label">Thông báo khi shop trống</label>
+                         <input type="text" class="form-control" name="MESSAGES[SHOP_ROLES_EMPTY]" value="{{ config.MESSAGES.get('SHOP_ROLES_EMPTY', '') }}">
+                    </div>
+                    <hr/>
+
+                    <h5 class="mt-3">Tin Nhắn Chức Năng Role Tùy Chỉnh</h5>
+                     <div class="mb-3">
+                        <label class="form-label">Lời nhắc quản lý</label>
+                         <textarea class="form-control" name="MESSAGES[CUSTOM_ROLE_MANAGE_PROMPT]" rows="2">{{ config.MESSAGES.get('CUSTOM_ROLE_MANAGE_PROMPT', '') }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Thông báo không đủ boost</label>
+                         <textarea class="form-control" name="MESSAGES[CUSTOM_ROLE_NO_BOOSTS]" rows="2">{{ config.MESSAGES.get('CUSTOM_ROLE_NO_BOOSTS', '') }}</textarea>
+                         <div class="form-text">Sử dụng <code>{min_boosts}</code> và <code>{boost_count}</code>.</div>
+                    </div>
+                     <div class="mb-3">
+                        <label class="form-label">Thông báo đã sở hữu role</label>
+                         <textarea class="form-control" name="MESSAGES[CUSTOM_ROLE_ALREADY_OWNED]" rows="2">{{ config.MESSAGES.get('CUSTOM_ROLE_ALREADY_OWNED', '') }}</textarea>
+                    </div>
+                     <div class="mb-3">
+                        <label class="form-label">Thông báo không đủ coin</label>
+                         <textarea class="form-control" name="MESSAGES[CUSTOM_ROLE_NO_COIN]" rows="2">{{ config.MESSAGES.get('CUSTOM_ROLE_NO_COIN', '') }}</textarea>
+                         <div class="form-text">Sử dụng <code>{price}</code> và <code>{balance}</code>.</div>
+                    </div>
+                     <div class="mb-3">
+                        <label class="form-label">Thông báo chưa sở hữu role</label>
+                         <textarea class="form-control" name="MESSAGES[CUSTOM_ROLE_NOT_OWNED]" rows="2">{{ config.MESSAGES.get('CUSTOM_ROLE_NOT_OWNED', '') }}</textarea>
+                    </div>
+                    <hr/>
+
+                    <h5 class="mt-3">Tin Nhắn Chân Trang (Footer)</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Bảng điều khiển Shop</label>
+                        <input type="text" class="form-control" name="FOOTER_MESSAGES[SHOP_PANEL]" value="{{ config.FOOTER_MESSAGES.get('SHOP_PANEL', '') }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Thông tin tài khoản</label>
+                        <input type="text" class="form-control" name="FOOTER_MESSAGES[ACCOUNT_INFO]" value="{{ config.FOOTER_MESSAGES.get('ACCOUNT_INFO', '') }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tỷ lệ kiếm coin</label>
+                        <input type="text" class="form-control" name="FOOTER_MESSAGES[EARNING_RATES]" value="{{ config.FOOTER_MESSAGES.get('EARNING_RATES', '') }}">
+                    </div>
+                     <div class="mb-3">
+                        <label class="form-label">Danh sách role</label>
+                        <input type="text" class="form-control" name="FOOTER_MESSAGES[ROLE_LIST]" value="{{ config.FOOTER_MESSAGES.get('ROLE_LIST', '') }}">
                     </div>
                 </div>
 
@@ -147,11 +238,14 @@
                         {% for item in config.get('QNA_DATA', []) %}
                         <div class="border p-2 mb-2 dynamic-row">
                             <div class="row">
-                                <div class="col-md-6 mb-2"><input type="text" class="form-control" name="qna_label[]" placeholder="Câu hỏi (hiện trên menu)" value="{{ item.label }}"></div>
-                                <div class="col-md-4 mb-2"><input type="text" class="form-control" name="qna_emoji[]" placeholder="Emoji (tùy chọn)" value="{{ item.emoji or '' }}"></div>
+                                <div class="col-md-5 mb-2"><input type="text" class="form-control" name="qna_label[]" placeholder="Câu hỏi (hiện trên menu)" value="{{ item.label }}"></div>
+                                <div class="col-md-5 mb-2"><input type="text" class="form-control" name="qna_description[]" placeholder="Mô tả ngắn (hiện dưới câu hỏi)" value="{{ item.description or '' }}"></div>
+                                <div class="col-md-2 mb-2"><input type="text" class="form-control" name="qna_emoji[]" placeholder="Emoji" value="{{ item.emoji or '' }}"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-10 mb-2"><input type="text" class="form-control" name="qna_answer_title[]" placeholder="Tiêu đề câu trả lời" value="{{ item.answer_title or '' }}"></div>
                                 <div class="col-md-2 mb-2"><button type="button" class="btn btn-danger btn-sm w-100" onclick="removeRow(this)">Xóa</button></div>
                             </div>
-                            <input type="text" class="form-control mb-2" name="qna_answer_title[]" placeholder="Tiêu đề câu trả lời" value="{{ item.answer_title or '' }}">
                             <textarea class="form-control" name="qna_answer_description[]" rows="3" placeholder="Nội dung câu trả lời">{{ item.answer_description or '' }}</textarea>
                         </div>
                         {% endfor %}
@@ -205,11 +299,14 @@ function addQnA() {
     newRow.className = 'border p-2 mb-2 dynamic-row';
     newRow.innerHTML = `
         <div class="row">
-            <div class="col-md-6 mb-2"><input type="text" class="form-control" name="qna_label[]" placeholder="Câu hỏi (hiện trên menu)"></div>
-            <div class="col-md-4 mb-2"><input type="text" class="form-control" name="qna_emoji[]" placeholder="Emoji (tùy chọn)"></div>
+            <div class="col-md-5 mb-2"><input type="text" class="form-control" name="qna_label[]" placeholder="Câu hỏi (hiện trên menu)"></div>
+            <div class="col-md-5 mb-2"><input type="text" class="form-control" name="qna_description[]" placeholder="Mô tả ngắn (hiện dưới câu hỏi)"></div>
+            <div class="col-md-2 mb-2"><input type="text" class="form-control" name="qna_emoji[]" placeholder="Emoji"></div>
+        </div>
+        <div class="row">
+            <div class="col-md-10 mb-2"><input type="text" class="form-control" name="qna_answer_title[]" placeholder="Tiêu đề câu trả lời"></div>
             <div class="col-md-2 mb-2"><button type="button" class="btn btn-danger btn-sm w-100" onclick="removeRow(this)">Xóa</button></div>
         </div>
-        <input type="text" class="form-control mb-2" name="qna_answer_title[]" placeholder="Tiêu đề câu trả lời">
         <textarea class="form-control" name="qna_answer_description[]" rows="3" placeholder="Nội dung câu trả lời"></textarea>
     `;
     container.appendChild(newRow);

@@ -96,6 +96,7 @@ def parse_form_data(form):
 
     # QnA
     qna_labels = request.form.getlist('qna_label[]')
+    qna_descriptions = request.form.getlist('qna_description[]')
     qna_emojis = request.form.getlist('qna_emoji[]')
     qna_titles = request.form.getlist('qna_answer_title[]')
     qna_descs = request.form.getlist('qna_answer_description[]')
@@ -105,6 +106,7 @@ def parse_form_data(form):
         if label:
             config['QNA_DATA'].append({
                 "label": label,
+                "description": qna_descriptions[i],
                 "emoji": qna_emojis[i],
                 "answer_title": qna_titles[i],
                 "answer_description": qna_descs[i].replace('\r\n', '\\n')
