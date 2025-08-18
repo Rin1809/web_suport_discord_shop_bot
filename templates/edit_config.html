@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block title %}Chỉnh sửa Server {{ guild_id }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Chỉnh sửa cấu hình cho Server ID: {{ guild_id }}</h2>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label for="shop_channel_id" class="form-label">ID Kênh Shop</label>
+                <input type="number" class="form-control" id="shop_channel_id" name="shop_channel_id" value="{{ shop_channel_id or '' }}" required>
+                <div class="form-text">ID của kênh text nơi bot sẽ gửi bảng điều khiển shop.</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="leaderboard_thread_id" class="form-label">ID Thread Bảng Xếp Hạng</label>
+                <input type="number" class="form-control" id="leaderboard_thread_id" name="leaderboard_thread_id" value="{{ leaderboard_thread_id or '' }}">
+                <div class="form-text">ID của thread BXH (thường được bot tự điền sau khi chạy /setup_shop, có thể bỏ trống).</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="config_data" class="form-label">Cấu hình chi tiết (JSON)</label>
+                <textarea class="form-control" id="config_data" name="config_data" rows="25" required>{{ config_data_str }}</textarea>
+                <div class="form-text">Toàn bộ các cấu hình còn lại dưới dạng JSON. Hãy cẩn thận khi chỉnh sửa. Bạn có thể dùng một công cụ "JSON Validator" online để kiểm tra cú pháp trước khi lưu.</div>
+            </div>
+            
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Hủy</a>
+            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
