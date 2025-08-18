@@ -1,11 +1,11 @@
 {% extends "layout.html" %}
 
-{% block title %}Chỉnh sửa Server {{ guild_id }}{% endblock %}
+{% block title %}Chỉnh sửa Server {{ guild.name or guild_id }}{% endblock %}
 
 {% block content %}
 <div class="card">
     <div class="card-header">
-        <h2>Chỉnh sửa cấu hình cho Server ID: {{ guild_id }}</h2>
+        <h2>Chỉnh sửa cấu hình cho Server: {{ guild.name or guild_id }}</h2>
     </div>
     <div class="card-body">
         <form method="POST" id="config-form">
@@ -33,9 +33,16 @@
                 <!-- General Tab -->
                 <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
                     <div class="mb-3">
-                        <label for="shop_channel_id" class="form-label">ID Kênh Shop</label>
-                        <input type="number" class="form-control" id="shop_channel_id" name="shop_channel_id" value="{{ config.shop_channel_id or '' }}" required>
-                        <div class="form-text">ID của kênh text nơi bot sẽ gửi bảng điều khiển shop.</div>
+                        <label for="shop_channel_id" class="form-label">Kênh Shop</label>
+                        <select class="form-select" id="shop_channel_id" name="shop_channel_id" required>
+                            <option value="">-- Chọn một kênh --</option>
+                            {% for channel in text_channels %}
+                                <option value="{{ channel.id }}" {% if channel.id|string == config.shop_channel_id|string %}selected{% endif %}>
+                                    #{{ channel.name }} (ID: {{ channel.id }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Kênh text nơi bot sẽ gửi bảng điều khiển shop.</div>
                     </div>
                     <div class="mb-3">
                         <label for="leaderboard_thread_id" class="form-label">ID Thread Bảng Xếp Hạng</label>
@@ -194,7 +201,10 @@
                     <div id="category-rates-container">
                         {% for cat_id, rates in config.CURRENCY_RATES.categories.items() %}
                         <div class="row mb-2 align-items-center dynamic-row">
-                            <div class="col-md-4"><input type="number" class="form-control" name="category_rate_id[]" value="{{ cat_id }}" placeholder="ID Danh mục"></div>
+                            <div class="col-md-4">
+                                <input type="number" class="form-control" name="category_rate_id[]" value="{{ cat_id }}" placeholder="ID Danh mục">
+                                <small class="text-muted ps-2">{{ all_channels_map.get(cat_id, 'Không tìm thấy tên') }}</small>
+                            </div>
                             <div class="col-md-3"><input type="number" class="form-control" name="category_rate_messages[]" value="{{ rates.MESSAGES_PER_COIN or '' }}" placeholder="Tin nhắn / coin"></div>
                             <div class="col-md-3"><input type="number" class="form-control" name="category_rate_reactions[]" value="{{ rates.REACTIONS_PER_COIN or '' }}" placeholder="Reaction / coin"></div>
                             <div class="col-md-2"><button type="button" class="btn btn-danger btn-sm w-100" onclick="removeRow(this)">Xóa</button></div>
@@ -208,7 +218,10 @@
                     <div id="channel-rates-container">
                          {% for chan_id, rates in config.CURRENCY_RATES.channels.items() %}
                         <div class="row mb-2 align-items-center dynamic-row">
-                            <div class="col-md-4"><input type="number" class="form-control" name="channel_rate_id[]" value="{{ chan_id }}" placeholder="ID Kênh"></div>
+                            <div class="col-md-4">
+                                <input type="number" class="form-control" name="channel_rate_id[]" value="{{ chan_id }}" placeholder="ID Kênh">
+                                <small class="text-muted ps-2">#{{ all_channels_map.get(chan_id, 'Không tìm thấy tên') }}</small>
+                            </div>
                             <div class="col-md-3"><input type="number" class="form-control" name="channel_rate_messages[]" value="{{ rates.MESSAGES_PER_COIN or '' }}" placeholder="Tin nhắn / coin"></div>
                             <div class="col-md-3"><input type="number" class="form-control" name="channel_rate_reactions[]" value="{{ rates.REACTIONS_PER_COIN or '' }}" placeholder="Reaction / coin"></div>
                             <div class="col-md-2"><button type="button" class="btn btn-danger btn-sm w-100" onclick="removeRow(this)">Xóa</button></div>

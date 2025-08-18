@@ -1,6 +1,7 @@
 import os
 import json
 import psycopg2
+import requests
 from psycopg2.extras import Json
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, flash
@@ -14,6 +15,26 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+API_BASE_URL = "https://discord.com/api/v10"
+
+# --- HELPER FUNCTIONS FOR DISCORD API ---
+
+def discord_api_request(endpoint):
+    # Ham helper de goi discord api
+    if not BOT_TOKEN:
+        return None
+    headers = {"Authorization": f"Bot {BOT_TOKEN}"}
+    try:
+        res = requests.get(f"{API_BASE_URL}{endpoint}", headers=headers)
+        res.raise_for_status()
+        return res.json()
+    except requests.RequestException as e:
+        print(f"Loi goi API Discord toi {endpoint}: {e}")
+        return None
+
+# --- END HELPER FUNCTIONS ---
+
 
 def get_db_connection():
     # Ham ket noi db
@@ -139,9 +160,26 @@ def index():
         guilds_data = cur.fetchall()
     conn.close()
     
-    guilds = [{'guild_id': row[0]} for row in guilds_data]
+    guilds_details = []
+    for row in guilds_data:
+        guild_id = row[0]
+        guild_info = discord_api_request(f"/guilds/{guild_id}")
+        if guild_info:
+            icon_hash = guild_info.get('icon')
+            icon_url = f"https://cdn.discordapp.com/icons/{guild_id}/{icon_hash}.png" if icon_hash else "https://cdn.discordapp.com/embed/avatars/0.png"
+            guilds_details.append({
+                'id': guild_id,
+                'name': guild_info.get('name', f'Unknown Server {guild_id}'),
+                'icon_url': icon_url
+            })
+        else:
+            guilds_details.append({
+                'id': guild_id,
+                'name': f'Server ID: {guild_id} (Không thể lấy thông tin)',
+                'icon_url': "https://cdn.discordapp.com/embed/avatars/0.png"
+            })
     
-    return render_template('index.html', guilds=guilds)
+    return render_template('index.html', guilds=guilds_details)
 
 
 @app.route('/edit/<int:guild_id>', methods=['GET', 'POST'])
@@ -204,8 +242,23 @@ def edit_config(guild_id):
         for item in config["QNA_DATA"]:
             if "answer_description" in item and item["answer_description"]:
                 item["answer_description"] = item["answer_description"].replace('\\n', '\n')
+    
+    # Lay thong tin tu discord api
+    guild_details = discord_api_request(f"/guilds/{guild_id}")
+    all_channels = discord_api_request(f"/guilds/{guild_id}/channels")
+    text_channels = [ch for ch in all_channels if ch['type'] == 0] if all_channels else []
+    
+    # tao map id -> ten
+    all_channels_map = {str(ch['id']): ch['name'] for ch in all_channels} if all_channels else {}
 
-    return render_template('edit_config.html', guild_id=guild_id, config=config)
+    return render_template(
+        'edit_config.html', 
+        guild_id=guild_id, 
+        config=config, 
+        guild=guild_details,
+        text_channels=text_channels,
+        all_channels_map=all_channels_map
+    )
 
 if __name__ == '__main__':
     # Chay app
