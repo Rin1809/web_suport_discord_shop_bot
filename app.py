@@ -30,6 +30,7 @@ def parse_form_data(form):
     
     # Cac key don le
     simple_keys = [
+        'shop_channel_id', 'leaderboard_thread_id', # Them vao day
         'EMBED_COLOR', 'SELL_REFUND_PERCENTAGE',
         'SHOP_EMBED_THUMBNAIL_URL', 'SHOP_EMBED_IMAGE_URL',
         'EARNING_RATES_IMAGE_URL'
@@ -50,6 +51,15 @@ def parse_form_data(form):
             d[parts[-1]] = value if value else None
 
     # xu ly kieu du lieu
+    if config.get('shop_channel_id'):
+        config['shop_channel_id'] = int(config['shop_channel_id'])
+    else:
+         config['shop_channel_id'] = None
+    if config.get('leaderboard_thread_id'):
+        config['leaderboard_thread_id'] = int(config['leaderboard_thread_id'])
+    else:
+        config['leaderboard_thread_id'] = None
+
     if 'CURRENCY_RATES' in config and 'default' in config['CURRENCY_RATES']:
         default_rates = config['CURRENCY_RATES']['default']
         if default_rates.get('MESSAGES_PER_COIN'):
@@ -143,27 +153,19 @@ def edit_config(guild_id):
         return redirect(url_for('index'))
 
     if request.method == 'POST':
-        # Nhan du lieu tu form
-        shop_channel_id = request.form.get('shop_channel_id')
-        leaderboard_thread_id = request.form.get('leaderboard_thread_id')
-        
-        # Parse data tu form
+        # Parse all data tu form vao 1 object
         config_data_json = parse_form_data(request.form)
 
         try:
             with conn.cursor() as cur:
+                # Update 1 cot JSONB duy nhat
                 cur.execute(
                     """
                     UPDATE guild_configs
-                    SET shop_channel_id = %s, leaderboard_thread_id = %s, config_data = %s
+                    SET config_data = %s
                     WHERE guild_id = %s;
                     """,
-                    (
-                        int(shop_channel_id) if shop_channel_id else None,
-                        int(leaderboard_thread_id) if leaderboard_thread_id else None,
-                        Json(config_data_json),
-                        guild_id
-                    )
+                    (Json(config_data_json), guild_id)
                 )
             conn.commit()
             flash(f"Đã cập nhật thành công cấu hình cho Server ID: {guild_id}", "success")
@@ -176,22 +178,21 @@ def edit_config(guild_id):
 
     # Xu ly GET request
     with conn.cursor() as cur:
-        cur.execute("SELECT shop_channel_id, leaderboard_thread_id, config_data FROM guild_configs WHERE guild_id = %s;", (guild_id,))
-        db_config = cur.fetchone()
+        # Chi can lay 1 cot config_data
+        cur.execute("SELECT config_data FROM guild_configs WHERE guild_id = %s;", (guild_id,))
+        db_result = cur.fetchone()
     conn.close()
 
-    if not db_config:
+    if not db_result:
         flash(f"Không tìm thấy cấu hình cho Server ID: {guild_id}", "warning")
         return redirect(url_for('index'))
     
-    # Gop data lai de template de xu ly
-    config = db_config[2] or {}
-    config['shop_channel_id'] = db_config[0]
-    config['leaderboard_thread_id'] = db_config[1]
+    config = db_result[0] or {}
 
     # Dam bao cac key chinh luon ton tai de tranh loi
     keys_to_ensure = {
-        "MESSAGES": {}, "CURRENCY_RATES": {"default": {}, "categories": {}, "channels": {}},
+        "MESSAGES": {}, "FOOTER_MESSAGES": {}, 
+        "CURRENCY_RATES": {"default": {}, "categories": {}, "channels": {}},
         "CUSTOM_ROLE_CONFIG": {}, "QNA_DATA": []
     }
     for key, default_value in keys_to_ensure.items():
