@@ -315,7 +315,7 @@ def members(guild_id):
     
     db_users_map = {str(u['user_id']): u for u in db_users_list}
 
-    # xy ly tim kiem
+    # xu ly tim kiem
     search_query = request.args.get('search', '').strip().lower()
     if search_query:
         filtered_members = []
@@ -347,7 +347,22 @@ def members(guild_id):
             'balance': db_info.get('balance', 0)
         })
 
-    return render_template('members.html', guild=guild_details, members=members_data, search_query=search_query)
+    # xu ly phan trang
+    page = request.args.get('page', 1, type=int)
+    per_page = 24 # so member moi trang
+    total_members = len(members_data)
+    total_pages = math.ceil(total_members / per_page)
+    offset = (page - 1) * per_page
+    paginated_members = members_data[offset : offset + per_page]
+
+    return render_template(
+        'members.html', 
+        guild=guild_details, 
+        members=paginated_members, 
+        search_query=search_query,
+        page=page,
+        total_pages=total_pages
+    )
 
 @app.route('/edit/<int:guild_id>/member/<int:user_id>', methods=['GET', 'POST'])
 def edit_member(guild_id, user_id):

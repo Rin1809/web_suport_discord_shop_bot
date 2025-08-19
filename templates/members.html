@@ -32,4 +32,21 @@
         <p style="text-align: center; grid-column: 1 / -1; font-size: 1.2rem;">Không tìm thấy thành viên nào.</p>
     {% endif %}
 </div>
+
+{% if total_pages > 1 %}
+<nav class="pagination">
+    {% if page > 1 %}
+        <a href="{{ url_for('members', guild_id=guild.id, page=page-1, search=search_query) }}" class="poetic-button poetic-button-secondary">&laquo; Trang trước</a>
+    {% endif %}
+    <span style="align-self: center;">Trang {{ page }} / {{ total_pages }}</span>
+    {% if page < total_pages %}
+        <a href="{{ url_for('members', guild_id=guild.id, page=page+1, search=search_query) }}" class="poetic-button poetic-button-secondary">Trang sau &raquo;</a>
+    {% endif %}
+</nav>
+{% endif %}
+
+<style>
+.pagination { margin-top: 2rem; display: flex; justify-content: center; gap: 1rem; }
+</style>
+
 {% endblock %}
