@@ -8,14 +8,15 @@
         <h2 class="poetic-header">Chỉnh sửa: {{ guild.name or guild_id }}</h2>
     </div>
     <div class="poetic-card-body">
+        <div class="config-nav" id="configTabNav">
+            <button class="config-nav-button active" data-target="#general" type="button">Cài đặt chung</button>
+            <button class="config-nav-button" data-target="#messages" type="button">Tin nhắn & Embeds</button>
+            <button class="config-nav-button" data-target="#rates" type="button">Tỷ lệ Coin</button>
+            <button class="config-nav-button" data-target="#customrole" type="button">Role Tùy Chỉnh</button>
+            <button class="config-nav-button" data-target="#qna" type="button">Q&A</button>
+            <a href="{{ url_for('members', guild_id=guild_id) }}" class="config-nav-button" type="button">Quản lý Thành viên</a>
+        </div>
         <form method="POST" id="config-form">
-            <div class="config-nav" id="configTabNav">
-                <button class="config-nav-button active" data-target="#general" type="button">Cài đặt chung</button>
-                <button class="config-nav-button" data-target="#messages" type="button">Tin nhắn & Embeds</button>
-                <button class="config-nav-button" data-target="#rates" type="button">Tỷ lệ Coin</button>
-                <button class="config-nav-button" data-target="#customrole" type="button">Role Tùy Chỉnh</button>
-                <button class="config-nav-button" data-target="#qna" type="button">Q&A</button>
-            </div>
 
             <div class="tab-content" id="configTabContent">
                 <div class="tab-pane active" id="general">
@@ -260,7 +261,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const tabPanes = document.querySelectorAll('.tab-content .tab-pane');
 
     tabButtons.forEach(button => {
-        button.addEventListener('click', function () {
+        button.addEventListener('click', function (e) {
+            if (this.tagName === 'A') return; // bo qua link
+            e.preventDefault();
             tabButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
             const targetId = this.getAttribute('data-target');
@@ -271,26 +274,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // xu ly mo rong/thu gon textarea
     const form = document.getElementById('config-form');
-    form.addEventListener('click', function(event) {
-        const target = event.target;
-        if (target.classList.contains('expand-toggle-btn')) {
-            event.preventDefault(); // tranh submit form
-            const wrapper = target.closest('.textarea-wrapper');
-            if (wrapper) {
-                const textarea = wrapper.querySelector('textarea');
-                wrapper.classList.toggle('expanded');
-                if (wrapper.classList.contains('expanded')) {
-                    target.textContent = '-';
-                    // set chieu cao auto de tinh lai scrollHeight
-                    textarea.style.height = 'auto'; 
-                    textarea.style.height = (textarea.scrollHeight + 5) + 'px';
-                } else {
-                    target.textContent = '+';
-                    textarea.style.height = ''; // quay ve css
+    if (form) {
+        form.addEventListener('click', function(event) {
+            const target = event.target;
+            if (target.classList.contains('expand-toggle-btn')) {
+                event.preventDefault(); // tranh submit form
+                const wrapper = target.closest('.textarea-wrapper');
+                if (wrapper) {
+                    const textarea = wrapper.querySelector('textarea');
+                    wrapper.classList.toggle('expanded');
+                    if (wrapper.classList.contains('expanded')) {
+                        target.textContent = '-';
+                        // set chieu cao auto de tinh lai scrollHeight
+                        textarea.style.height = 'auto'; 
+                        textarea.style.height = (textarea.scrollHeight + 5) + 'px';
+                    } else {
+                        target.textContent = '+';
+                        textarea.style.height = ''; // quay ve css
+                    }
                 }
             }
-        }
-    });
+        });
+    }
 });
 
 // ham js

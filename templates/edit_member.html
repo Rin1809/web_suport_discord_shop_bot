@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block title %}Chỉnh sửa {{ user.display_name }}{% endblock %}
+
+{% block content %}
+
+<div class="poetic-card">
+    <div class="poetic-card-header edit-member-header">
+        <img src="{{ user.avatar_url }}" alt="Avatar">
+        <h2 class="poetic-header" style="margin:0; text-align: left;">Sửa: {{ user.display_name }}</h2>
+    </div>
+    <div class="poetic-card-body">
+        <form method="POST">
+            <h5 class="form-section-title">Thông tin chung</h5>
+            <div class="form-grid">
+                <div class="form-group-poetic">
+                    <label for="balance" class="form-label-poetic">Số dư Coin</label>
+                    <input type="number" class="form-control-poetic" id="balance" name="balance" value="{{ user.balance }}">
+                </div>
+            </div>
+
+            {% if user.role_id %}
+            <hr>
+            <h5 class="form-section-title">Role Tùy Chỉnh</h5>
+            <div class="form-grid">
+                <div class="form-group-poetic">
+                    <label class="form-label-poetic">Role ID</label>
+                    <input type="text" class="form-control-poetic" value="{{ user.role_id }}" disabled>
+                </div>
+                 <div class="form-group-poetic">
+                    <label for="role_name" class="form-label-poetic">Tên Role</label>
+                    <input type="text" class="form-control-poetic" id="role_name" name="role_name" value="{{ user.role_name }}">
+                </div>
+                 <div class="form-group-poetic">
+                    <label for="role_color" class="form-label-poetic">Màu Role (HEX)</label>
+                    <input type="text" class="form-control-poetic" id="role_color" name="role_color" value="{{ user.role_color }}">
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="form-actions">
+                <a href="{{ url_for('members', guild_id=guild.id) }}" class="poetic-button poetic-button-secondary">Hủy</a>
+                <button type="submit" class="poetic-button poetic-button-primary">Lưu thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

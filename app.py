@@ -2,7 +2,7 @@ import os
 import json
 import psycopg2
 import requests
-from psycopg2.extras import Json
+from psycopg2.extras import Json, RealDictCursor
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, flash
 from collections import defaultdict
@@ -20,13 +20,14 @@ API_BASE_URL = "https://discord.com/api/v10"
 
 # --- HELPER FUNCTIONS FOR DISCORD API ---
 
-def discord_api_request(endpoint):
-    # ham goi discord api
+def discord_api_request(endpoint, method='GET', payload=None):
     if not BOT_TOKEN:
         return None
     headers = {"Authorization": f"Bot {BOT_TOKEN}"}
     try:
-        res = requests.get(f"{API_BASE_URL}{endpoint}", headers=headers)
+        if method == 'GET':
+            res = requests.get(f"{API_BASE_URL}{endpoint}", headers=headers)
+        # them cac method khac neu can
         res.raise_for_status()
         return res.json()
     except requests.RequestException as e:
@@ -40,6 +41,7 @@ def get_db_connection():
     # ham ket noi db
     try:
         conn = psycopg2.connect(DATABASE_URL)
+        conn.cursor_factory = RealDictCursor # tra ve dict
         return conn
     except Exception as e:
         print(f"Loi ket noi database: {e}")
@@ -140,7 +142,7 @@ def parse_form_data(form):
                 "description": qna_descriptions[i],
                 "emoji": qna_emojis[i],
                 "answer_title": qna_titles[i],
-                "answer_description": qna_descs[i] # fix
+                "answer_description": qna_descs[i]
             })
 
     # chuyen defaultdict thanh dict bth
@@ -162,7 +164,7 @@ def index():
     
     guilds_details = []
     for row in guilds_data:
-        guild_id = row[0]
+        guild_id = row['guild_id']
         guild_info = discord_api_request(f"/guilds/{guild_id}")
         if guild_info:
             icon_hash = guild_info.get('icon')
@@ -224,7 +226,7 @@ def edit_config(guild_id):
         flash(f"Không tìm thấy cấu hình cho Server ID: {guild_id}", "warning")
         return redirect(url_for('index'))
     
-    config = db_result[0] or {}
+    config = db_result['config_data'] or {}
 
     # dam bao key luon ton tai
     keys_to_ensure = {
@@ -262,6 +264,119 @@ def edit_config(guild_id):
         category_channels=category_channels,
         rateable_channels=rateable_channels
     )
+
+# quan ly member
+@app.route('/edit/<int:guild_id>/members')
+def members(guild_id):
+    conn = get_db_connection()
+    if not conn:
+        flash("Không thể kết nối đến cơ sở dữ liệu!", "danger")
+        return redirect(url_for('edit_config', guild_id=guild_id))
+
+    guild_details = discord_api_request(f"/guilds/{guild_id}")
+    if not guild_details:
+        flash(f"Không thể lấy thông tin server {guild_id}", "danger")
+        return redirect(url_for('index'))
+    
+    # lay member tu discord api
+    api_members = discord_api_request(f"/guilds/{guild_id}/members?limit=1000")
+    if api_members is None:
+        api_members = []
+    
+    # lay user tu db
+    with conn.cursor() as cur:
+        cur.execute("SELECT user_id, balance FROM users WHERE guild_id = %s", (guild_id,))
+        db_users_list = cur.fetchall()
+    conn.close()
+    
+    db_users_map = {str(u['user_id']): u for u in db_users_list}
+    
+    # gop data
+    members_data = []
+    for member in api_members:
+        user = member.get('user', {})
+        user_id_str = user.get('id')
+        if not user_id_str or user.get('bot'):
+            continue
+            
+        avatar_hash = user.get('avatar')
+        avatar_url = f"https://cdn.discordapp.com/avatars/{user_id_str}/{avatar_hash}.png" if avatar_hash else "https://cdn.discordapp.com/embed/avatars/0.png"
+        
+        db_info = db_users_map.get(user_id_str, {})
+
+        members_data.append({
+            'id': user_id_str,
+            'name': user.get('global_name') or user.get('username'),
+            'discriminator': user.get('discriminator'),
+            'avatar_url': avatar_url,
+            'balance': db_info.get('balance', 0)
+        })
+
+    return render_template('members.html', guild=guild_details, members=members_data)
+
+@app.route('/edit/<int:guild_id>/member/<int:user_id>', methods=['GET', 'POST'])
+def edit_member(guild_id, user_id):
+    conn = get_db_connection()
+    if not conn:
+        flash("Không thể kết nối database!", "danger")
+        return redirect(url_for('members', guild_id=guild_id))
+
+    guild_details = discord_api_request(f"/guilds/{guild_id}")
+    if not guild_details:
+        flash("Không thể lấy thông tin server", "danger")
+        return redirect(url_for('index'))
+
+    if request.method == 'POST':
+        new_balance = request.form.get('balance')
+        # co the them cac field khac
+        try:
+            with conn.cursor() as cur:
+                cur.execute("UPDATE users SET balance = %s WHERE user_id = %s AND guild_id = %s", (int(new_balance), user_id, guild_id))
+            conn.commit()
+            flash("Cập nhật thông tin thành viên thành công!", "success")
+        except Exception as e:
+            flash(f"Lỗi khi cập nhật: {e}", "danger")
+        finally:
+            conn.close()
+        return redirect(url_for('members', guild_id=guild_id))
+
+    # GET request
+    # lay db profile
+    with conn.cursor() as cur:
+        query = """
+        SELECT u.*, cr.role_id, cr.role_name, cr.role_color
+        FROM users u
+        LEFT JOIN custom_roles cr ON u.user_id = cr.user_id AND u.guild_id = cr.guild_id
+        WHERE u.user_id = %s AND u.guild_id = %s;
+        """
+        cur.execute(query, (user_id, guild_id))
+        user_db_data = cur.fetchone()
+    conn.close()
+
+    if not user_db_data:
+        # tao user neu chua co
+        with get_db_connection() as c:
+            with c.cursor() as cur:
+                cur.execute("INSERT INTO users (user_id, guild_id, balance) VALUES (%s, %s, 0) ON CONFLICT DO NOTHING", (user_id, guild_id))
+                c.commit()
+        # thu lai
+        return edit_member(guild_id, user_id)
+
+    # lay discord profile
+    user_api_data = discord_api_request(f"/users/{user_id}")
+    if not user_api_data:
+        flash("Không thể lấy thông tin người dùng từ Discord.", "danger")
+        return redirect(url_for('members', guild_id=guild_id))
+        
+    avatar_hash = user_api_data.get('avatar')
+    user_api_data['avatar_url'] = f"https://cdn.discordapp.com/avatars/{user_id}/{avatar_hash}.png" if avatar_hash else "https://cdn.discordapp.com/embed/avatars/0.png"
+    user_api_data['display_name'] = user_api_data.get('global_name') or user_api_data.get('username')
+
+    # gop data
+    full_user_data = {**user_db_data, **user_api_data}
+
+    return render_template('edit_member.html', guild=guild_details, user=full_user_data)
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

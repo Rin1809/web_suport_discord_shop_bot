@@ -94,7 +94,7 @@ body {
     0% { opacity: 0.1; } 50% { opacity: 0.8; } 100% { opacity: 0.1; }
 }
 
-/* --- TRANG INDEX --- */
+/* --- TRANG INDEX & MEMBERS --- */
 .server-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -138,6 +138,12 @@ body {
     color: var(--subtext-color-poetic);
     opacity: 0.8;
 }
+.member-card-balance {
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    color: var(--info-color);
+}
+
 
 /* --- TRANG EDIT_CONFIG --- */
 .poetic-card {
@@ -156,6 +162,18 @@ body {
     text-align: center;
     color: var(--highlight-color-poetic);
 }
+.edit-member-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+.edit-member-header img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+}
+
 
 /* --- TABS --- */
 .config-nav {
@@ -168,7 +186,7 @@ body {
     border-bottom: 1px solid rgba(var(--border-color-rgb), 0.25);
     padding-bottom: 2rem;
 }
-.config-nav-button {
+.config-nav-button, .config-nav a.config-nav-button {
     font-family: inherit;
     font-weight: 500;
     font-size: 1rem;
@@ -179,12 +197,13 @@ body {
     border-radius: 9999px;
     cursor: pointer;
     transition: all 0.25s ease-in-out;
+    text-decoration: none;
 }
-.config-nav-button:hover {
+.config-nav-button:hover, .config-nav a.config-nav-button:hover {
     color: var(--text-color-poetic);
     background-color: rgba(var(--highlight-color-poetic-rgb), 0.1);
 }
-.config-nav-button.active {
+.config-nav-button.active, .config-nav a.config-nav-button.active {
     color: var(--primary-color);
     border-color: rgba(var(--primary-color-rgb), 0.5);
     background-color: rgba(var(--primary-color-rgb), 0.15);

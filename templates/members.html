@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block title %}Quản lý Thành viên - {{ guild.name }}{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('edit_config', guild_id=guild.id) }}" class="poetic-button poetic-button-secondary" style="margin-bottom: 2rem;">&larr; Quay lại Cấu hình</a>
+
+<h1 class="main-title poetic-header">Quản lý Thành viên: {{ guild.name }}</h1>
+
+<div class="server-grid">
+    {% if members %}
+        {% for member in members %}
+            <a href="{{ url_for('edit_member', guild_id=guild.id, user_id=member.id) }}" class="server-card">
+                <img src="{{ member.avatar_url }}" alt="Avatar" class="server-card-icon">
+                <div class="server-card-info">
+                    <h5>{{ member.name }}</h5>
+                    <small>ID: {{ member.id }}</small>
+                    <div class="member-card-balance">
+                        <strong>{{ "{:,}".format(member.balance) }}</strong> coin
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    {% else %}
+        <p style="text-align: center; grid-column: 1 / -1; font-size: 1.2rem;">Không tìm thấy thành viên nào.</p>
+    {% endif %}
+</div>
+{% endblock %}
