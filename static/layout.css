@@ -1,0 +1,127 @@
+/* --- sidebar --- */
+.sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: rgba(var(--sidebar-bg-rgb), 0.7);
+    backdrop-filter: blur(15px);
+    border-right: 1px solid rgba(var(--border-color-rgb), 0.2);
+    z-index: 100;
+    transform: translateX(0);
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+}
+.sidebar-header {
+    padding: 1.5rem 1.5rem 1rem 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(var(--border-color-rgb), 0.15);
+}
+.sidebar-header a { text-decoration: none; }
+.sidebar-title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin: 0;
+    color: var(--highlight-color-poetic);
+}
+.sidebar-nav {
+    flex-grow: 1;
+    padding: 1.5rem 0;
+    overflow-y: auto;
+}
+.sidebar-nav a {
+    display: block;
+    padding: 0.8rem 1.8rem;
+    color: var(--subtext-color-poetic);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 400;
+    transition: all 0.25s ease;
+    border-left: 4px solid transparent;
+    margin: 0.2rem 0;
+}
+.sidebar-nav a:hover {
+    background-color: rgba(var(--highlight-color-poetic-rgb), 0.08);
+    color: var(--text-color-poetic);
+}
+.sidebar-nav a.active {
+    color: var(--primary-color);
+    background-color: rgba(var(--primary-color-rgb), 0.1);
+    border-left-color: var(--primary-color);
+    font-weight: 500;
+}
+.sidebar-footer {
+    padding: 1.5rem;
+    border-top: 1px solid rgba(var(--border-color-rgb), 0.15);
+    display: flex;
+    justify-content: center;
+}
+
+/* --- nut an/hien sidebar --- */
+.sidebar-toggle {
+    position: fixed;
+    top: 1.5rem;
+    left: 1.5rem;
+    z-index: 101;
+    background: rgba(var(--card-background-rgb), 0.5);
+    border: 1px solid var(--border-color);
+    color: var(--text-color-poetic);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+}
+.sidebar-toggle:hover {
+    background-color: rgba(var(--highlight-color-poetic-rgb), 0.2);
+    transform: scale(1.1);
+}
+
+/* --- bo cuc chinh --- */
+.content-wrapper {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    padding: clamp(2rem, 5vh, 4rem) 1.5rem;
+    box-sizing: border-box;
+    max-width: 1400px;
+    margin: 0 auto;
+    transition: margin-left 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.pagination { 
+    margin-top: 2.5rem; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    gap: 1rem; 
+}
+
+@media (min-width: 1024px) {
+    .content-wrapper.with-sidebar {
+        margin-left: var(--sidebar-width);
+        max-width: none;
+        padding-left: clamp(2rem, 5vw, 4rem);
+        padding-right: clamp(2rem, 5vw, 4rem);
+    }
+}
+@media (max-width: 1023px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    body.sidebar-active .sidebar {
+        transform: translateX(0);
+    }
+    .sidebar-toggle {
+        display: flex;
+    }
+    body.sidebar-active .sidebar-toggle {
+        left: calc(var(--sidebar-width) + 1rem);
+    }
+}

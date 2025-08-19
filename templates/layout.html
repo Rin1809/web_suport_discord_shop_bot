@@ -4,12 +4,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Bot Dashboard{% endblock %}</title>
-    <!-- Font -->
+    <!-- font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playwrite+DK+Loopet:wght@100..400&display=swap" rel="stylesheet">
-    <!-- CSS -->
-    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+    <!-- css -->
+    <link href="{{ url_for('static', filename='base.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='layout.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='components.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='animations.css') }}" rel="stylesheet">
 </head>
 <body>
     <div class="starfield"></div>
@@ -25,12 +28,7 @@
             </a>
         </div>
         <div class="sidebar-nav" id="sidebarNav">
-            <a href="#" data-target="#general">Cài đặt chung</a>
-            <a href="#" data-target="#shoproles">Quản lý Role Shop</a>
-            <a href="#" data-target="#messages">Tin nhắn & Embeds</a>
-            <a href="#" data-target="#rates">Tỷ lệ Coin</a>
-            <a href="#" data-target="#customrole">Role Tùy Chỉnh</a>
-            <a href="#" data-target="#qna">Q&A</a>
+            <a href="{{ url_for('edit_config', guild_id=guild_id) }}">Cấu hình Server</a>
             <hr style="margin: 1rem 1.5rem;">
             <a href="{{ url_for('members', guild_id=guild_id) }}">Quản lý Thành viên</a>
             <a href="{{ url_for('history', guild_id=guild_id) }}">Lịch sử Giao dịch</a>
@@ -59,6 +57,7 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // an/hien sidebar
         const sidebar = document.getElementById('sidebar');
         const toggleBtn = document.getElementById('sidebarToggle');
         
@@ -67,6 +66,17 @@
                 document.body.classList.toggle('sidebar-active');
             });
         }
+        
+        // auto hide alert
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    alert.remove();
+                }, 500);
+            }, 5000);
+        });
     });
     </script>
     

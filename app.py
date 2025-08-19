@@ -415,7 +415,8 @@ def members(guild_id):
         members=paginated_members, 
         search_query=search_query,
         page=page,
-        total_pages=total_pages
+        total_pages=total_pages,
+        guild_id=guild_id # fix: them guild_id
     )
 
 @app.route('/edit/<int:guild_id>/member/<int:user_id>', methods=['GET', 'POST'])
@@ -499,7 +500,7 @@ def edit_member(guild_id, user_id):
 
     full_user_data = {**user_db_data, **user_api_data}
 
-    return render_template('edit_member.html', guild=guild_details, user=full_user_data, transactions=transactions)
+    return render_template('edit_member.html', guild=guild_details, user=full_user_data, transactions=transactions, guild_id=guild_id)
 
 @app.route('/edit/<int:guild_id>/history')
 def history(guild_id):
@@ -538,7 +539,8 @@ def history(guild_id):
         guild=guild_details, 
         transactions=transactions,
         page=page,
-        total_pages=total_pages
+        total_pages=total_pages,
+        guild_id=guild_id # fix: them guild_id
     )
 
 

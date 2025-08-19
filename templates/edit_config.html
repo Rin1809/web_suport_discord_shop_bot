@@ -11,6 +11,16 @@
         
         <form method="POST" id="config-form">
 
+            <!-- dieu huong tab moi -->
+            <ul class="nav-tabs" id="configTabs">
+                <li><a class="nav-link active" data-target="#general">Cài đặt chung</a></li>
+                <li><a class="nav-link" data-target="#shoproles">Role Shop</a></li>
+                <li><a class="nav-link" data-target="#messages">Tin nhắn & Embeds</a></li>
+                <li><a class="nav-link" data-target="#rates">Tỷ lệ Coin</a></li>
+                <li><a class="nav-link" data-target="#customrole">Role Tùy Chỉnh</a></li>
+                <li><a class="nav-link" data-target="#qna">Q&A</a></li>
+            </ul>
+
             <div class="tab-content" id="configTabContent">
                 <div class="tab-pane active" id="general">
                     <div class="form-grid">
@@ -327,36 +337,29 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const navLinks = document.querySelectorAll('.sidebar-nav a');
-    const tabPanes = document.querySelectorAll('.tab-content .tab-pane');
-    const path = window.location.pathname;
-    
-    // logic dieu huong tab
-    navLinks.forEach(link => {
-        const targetId = link.getAttribute('data-target');
-        if (targetId) { // chi xu ly cac link co data-target
-            link.addEventListener('click', function (e) {
+    // logic tab moi
+    const tabContainer = document.getElementById('configTabs');
+    if (tabContainer) {
+        const navLinks = tabContainer.querySelectorAll('.nav-link');
+        const tabPanes = document.querySelectorAll('.tab-content .tab-pane');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
                 e.preventDefault();
-                navLinks.forEach(btn => btn.classList.remove('active'));
+
+                navLinks.forEach(l => l.classList.remove('active'));
                 this.classList.add('active');
-                
-                tabPanes.forEach(pane => pane.classList.remove('active'));
-                document.querySelector(targetId).classList.add('active');
+
+                tabPanes.forEach(p => p.classList.remove('active'));
+                const targetPane = document.querySelector(this.getAttribute('data-target'));
+                if (targetPane) {
+                    targetPane.classList.add('active');
+                }
             });
-        }
+        });
+    }
 
-        // logic active link
-        if (link.getAttribute('href') !== '#' && path.includes(link.getAttribute('href'))) {
-             navLinks.forEach(btn => btn.classList.remove('active'));
-             link.classList.add('active');
-        } else if (link.getAttribute('href') === '#') {
-             // trang config, active tab dau tien
-            if(path.includes('edit') && !path.includes('member')) {
-                document.querySelector('.sidebar-nav a[data-target="#general"]').classList.add('active');
-            }
-        }
-    });
-
+    // logic nut mo rong textarea
     const form = document.getElementById('config-form');
     if (form) {
         form.addEventListener('click', function(event) {
@@ -366,18 +369,36 @@ document.addEventListener('DOMContentLoaded', function () {
                 const wrapper = target.closest('.textarea-wrapper');
                 if (wrapper) {
                     const textarea = wrapper.querySelector('textarea');
-                    wrapper.classList.toggle('expanded');
-                    if (wrapper.classList.contains('expanded')) {
-                        target.textContent = '-';
-                        textarea.style.height = 'auto'; 
+                    const isExpanded = wrapper.classList.toggle('expanded');
+                    target.textContent = isExpanded ? '−' : '+';
+                    if (isExpanded) {
+                        textarea.style.height = 'auto';
                         textarea.style.height = (textarea.scrollHeight + 5) + 'px';
+                        textarea.style.resize = 'none';
                     } else {
-                        target.textContent = '+';
                         textarea.style.height = ''; 
+                        textarea.style.resize = '';
                     }
                 }
             }
         });
+    }
+
+    // active sidebar link
+    const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
+    const path = window.location.pathname;
+    sidebarLinks.forEach(link => {
+        if (link.getAttribute('href') !== '#' && path.includes(link.getAttribute('href'))) {
+             sidebarLinks.forEach(btn => btn.classList.remove('active'));
+             link.classList.add('active');
+        }
+    });
+    // active link config mac dinh
+    if (path.includes('edit') && !path.includes('member')) {
+        const configLink = document.querySelector('.sidebar-nav a[href*="/edit/{{guild_id}}"]');
+        if(configLink && !path.includes('member') && !path.includes('history')) {
+            configLink.classList.add('active');
+        }
     }
 });
 

@@ -50,7 +50,7 @@
         {% if page > 1 %}
             <a href="{{ url_for('history', guild_id=guild.id, page=page-1) }}" class="poetic-button poetic-button-secondary">&laquo; Trang trước</a>
         {% endif %}
-        <span style="align-self: center;">Trang {{ page }} / {{ total_pages }}</span>
+        <span>Trang {{ page }} / {{ total_pages }}</span>
         {% if page < total_pages %}
             <a href="{{ url_for('history', guild_id=guild.id, page=page+1) }}" class="poetic-button poetic-button-secondary">Trang sau &raquo;</a>
         {% endif %}
@@ -62,10 +62,10 @@
 <style>
 .table-responsive { overflow-x: auto; }
 .history-table { width: 100%; border-collapse: collapse; min-width: 800px; }
-.history-table th, .history-table td { padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid rgba(var(--border-color-rgb), 0.2); white-space: nowrap; }
-.history-table th { font-weight: 500; color: var(--highlight-color-poetic); }
-.history-table tbody tr:hover { background-color: rgba(var(--highlight-color-poetic-rgb), 0.05); }
-.pagination { margin-top: 2rem; display: flex; justify-content: center; gap: 1rem; }
+.history-table th, .history-table td { padding: 0.9rem 1.1rem; text-align: left; border-bottom: 1px solid rgba(var(--border-color-rgb), 0.2); white-space: nowrap; }
+.history-table th { font-weight: 500; color: var(--highlight-color-poetic); border-bottom-width: 2px; }
+.history-table tbody tr:nth-child(even) { background-color: rgba(var(--card-background-rgb), 0.2); }
+.history-table tbody tr:hover { background-color: rgba(var(--highlight-color-poetic-rgb), 0.08); }
 </style>
 
 {% endblock %}

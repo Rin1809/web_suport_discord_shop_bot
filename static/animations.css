@@ -1,0 +1,28 @@
+/* --- hieu ung sao roi --- */
+.starfield, .starfield::before, .starfield::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 1px; height: 1px;
+    border-radius: 50%;
+    background: transparent;
+    animation-name: twinkle;
+    animation-iteration-count: infinite;
+    z-index: -2;
+}
+.starfield { animation-duration: 7s; box-shadow: 759px 1239px #FFF,1783px 1475px #FFF,183px 1819px #FFF,289px 1502px #FFF,1595px 1475px #FFF,370px 1565px #FFF,483px 119px #FFF,215px 1251px #FFF,488px 1222px #FFF,114px 1729px #FFF,1458px 1506px #FFF,1399px 744px #FFF,1596px 832px #FFF,699px 1269px #FFF,1599px 1974px #FFF,61px 1856px #FFF,88px 1243px #FFF,735px 1982px #FFF,139px 232px #FFF,38px 235px #FFF,114px 1162px #FFF,354px 1636px #FFF,1320px 1550px #FFF,1564px 341px #FFF,1355px 1162px #FFF,1218px 749px #FFF,1234px 1779px #FFF,1920px 1118px #FFF,1344px 1238px #FFF,1402px 1404px #FFF,483px 1860px #FFF,597px 1120px #FFF,1229px 1968px #FFF,1194px 1257px #FFF,1250px 1234px #FFF,1202px 28px #FFF,1253px 449px #FFF,1138px 1010px #FFF,42px 799px #FFF,970px 1591px #FFF,1805px 76px #FFF,622px 1316px #FFF,1283px 432px #FFF,187px 809px #FFF,1931px 406px #FFF,1053px 1084px #FFF,1102px 1386px #FFF,1109px 1916px #FFF,1366px 1341px #FFF,1248px 1214px #FFF; }
+.starfield::before { animation-duration: 5s; width: 2px; height: 2px; box-shadow: 104px 1247px #FFF,1992px 1914px #FFF,143px 1195px #FFF,1075px 1417px #FFF,949px 250px #FFF,72px 1459px #FFF,1316px 1236px #FFF,579px 1935px #FFF,1781px 1960px #FFF,1976px 1736px #FFF,1652px 1576px #FFF,879px 1039px #FFF,930px 1152px #FFF,1051px 1373px #FFF,1648px 135px #FFF,1597px 461px #FFF,1968px 433px #FFF,1963px 1150px #FFF,309px 233px #FFF,273px 1319px #FFF,853px 439px #FFF,1148px 1172px #FFF,951px 109px #FFF,1529px 188px #FFF,517px 747px #FFF,1250px 1297px #FFF,1166px 1319px #FFF,22px 1184px #FFF,1904px 1827px #FFF,1118px 1908px #FFF,354px 1119px #FFF,191px 1279px #FFF,224px 345px #FFF,822px 698px #FFF,1915px 129px #FFF,691px 1197px #FFF,1637px 1151px #FFF,744px 1845px #FFF,1473px 1841px #FFF,1303px 174px #FFF,1179px 819px #FFF,1468px 1754px #FFF,1784px 1085px #FFF,917px 1883px #FFF,861px 1150px #FFF,566px 873px #FFF,1396px 1993px #FFF,966px 1289px #FFF,1467px 32px #FFF; }
+.starfield::after { animation-duration: 10s; width: 3px; height: 3px; box-shadow: 1374px 1136px #FFF,1175px 376px #FFF,111px 1609px #FFF,329px 100px #FFF,1863px 1109px #FFF,1380px 1307px #FFF,848px 1010px #FFF,766px 1988px #FFF,1086px 1318px #FFF,123px 125px #FFF,1805px 1132px #FFF,804px 502px #FFF,51px 1735px #FFF,1716px 104px #FFF,75px 843px #FFF,756px 1179px #FFF,105px 1718px #FFF,1626px 803px #FFF,38px 1215px #FFF,1812px 1165px #FFF,1912px 1640px #FFF,688px 131px #FFF,1343px 1765px #FFF,1545px 369px #FFF,1189px 38px #FFF,188px 1055px #FFF,1413px 1475px #FFF,1882px 790px #FFF,970px 1111px #FFF,1280px 1162px #FFF; }
+
+@keyframes twinkle {
+    0% { opacity: 0.1; } 50% { opacity: 0.8; } 100% { opacity: 0.1; }
+}
+
+/* --- hieu ung tab --- */
+.tab-content .tab-pane { display: none; }
+.tab-content .tab-pane.active { display: block; animation: fadeIn 0.5s; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

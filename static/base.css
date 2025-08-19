@@ -1,0 +1,72 @@
+/* --- bien mau & font --- */
+:root {
+    --font-family-poetic: "Playwrite DK Loopet", cursive;
+    --font-family-fallback: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+    
+    --background-color: #0c0e1a;
+    --background-color-rgb: 12, 14, 26;
+    
+    --card-background-rgb: 30, 30, 46;
+
+    --text-color-poetic: #e6e6e6;
+    --subtext-color-poetic: #c0c0c0;
+    --highlight-color-poetic: #D8BFD8;
+    --highlight-color-poetic-rgb: 216, 191, 216;
+    
+    --primary-color: #ffaaaa;
+    --primary-color-rgb: 255, 170, 170;
+    --secondary-color: #f5c2e7;
+    --info-color: #89b4fa;
+
+    --border-color: #45475a;
+    --border-color-rgb: 69, 71, 90;
+
+    --success-color: #a6e3a1;
+    --success-color-rgb: 166, 227, 161;
+    --danger-color: #f38ba8;
+    --danger-color-rgb: 243, 139, 168;
+    --warning-color: #fabc89;
+    --warning-color-rgb: 250, 188, 137;
+
+    --sidebar-width: 260px;
+    --sidebar-bg-rgb: 24, 26, 41;
+}
+
+/* --- dieu chinh chung --- */
+body {
+    font-family: var(--font-family-poetic), var(--font-family-fallback);
+    font-weight: 300;
+    background-color: var(--background-color);
+    color: var(--text-color-poetic);
+    line-height: 1.6;
+    margin: 0;
+    overflow-x: hidden;
+    transition: background-color 0.3s ease;
+}
+
+hr {
+    border: none;
+    height: 1px;
+    background-color: rgba(var(--border-color-rgb), 0.2);
+    margin: 3rem 0;
+}
+
+.main-title {
+    font-size: clamp(2.5rem, 6vw, 3.5rem);
+    font-weight: 400;
+    margin-bottom: 3rem;
+    letter-spacing: 1.5px;
+    line-height: 1.3;
+    text-align: center;
+    text-shadow: 0 0 30px rgba(var(--highlight-color-poetic-rgb), 0.4),
+                 0 0 15px rgba(var(--highlight-color-poetic-rgb), 0.25);
+}
+
+.poetic-header {
+    background: linear-gradient(120deg, var(--secondary-color) 20%, var(--primary-color) 50%, var(--info-color) 80%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
