@@ -7,6 +7,13 @@
 
 <h1 class="main-title poetic-header">Quản lý Thành viên: {{ guild.name }}</h1>
 
+<!-- form tim kiem -->
+<form method="GET" action="{{ url_for('members', guild_id=guild.id) }}" class="search-container">
+    <input type="search" name="search" class="search-input-poetic" placeholder="Tìm kiếm theo tên..." value="{{ search_query or '' }}">
+    <button type="submit" class="poetic-button poetic-button-primary">Tìm</button>
+</form>
+
+
 <div class="server-grid">
     {% if members %}
         {% for member in members %}

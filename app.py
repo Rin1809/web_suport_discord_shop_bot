@@ -290,6 +290,17 @@ def members(guild_id):
     conn.close()
     
     db_users_map = {str(u['user_id']): u for u in db_users_list}
+
+    # xy ly tim kiem
+    search_query = request.args.get('search', '').strip().lower()
+    if search_query:
+        filtered_members = []
+        for member in api_members:
+            user_info = member.get('user', {})
+            display_name = (user_info.get('global_name') or user_info.get('username', '')).lower()
+            if search_query in display_name:
+                filtered_members.append(member)
+        api_members = filtered_members
     
     # gop data
     members_data = []
@@ -312,7 +323,7 @@ def members(guild_id):
             'balance': db_info.get('balance', 0)
         })
 
-    return render_template('members.html', guild=guild_details, members=members_data)
+    return render_template('members.html', guild=guild_details, members=members_data, search_query=search_query)
 
 @app.route('/edit/<int:guild_id>/member/<int:user_id>', methods=['GET', 'POST'])
 def edit_member(guild_id, user_id):
