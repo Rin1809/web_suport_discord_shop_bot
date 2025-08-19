@@ -16,6 +16,31 @@
     <div class="starfield"></div>
     <div class="starfield"></div>
 
+    {% if guild %}
+    <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Menu">☰</button>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="{{ url_for('edit_config', guild_id=guild_id) }}">
+                <h3 class="sidebar-title poetic-header">{{ guild.name or 'Dashboard' }}</h3>
+            </a>
+        </div>
+        <div class="sidebar-nav" id="sidebarNav">
+            <a href="#" data-target="#general">Cài đặt chung</a>
+            <a href="#" data-target="#shoproles">Quản lý Role Shop</a>
+            <a href="#" data-target="#messages">Tin nhắn & Embeds</a>
+            <a href="#" data-target="#rates">Tỷ lệ Coin</a>
+            <a href="#" data-target="#customrole">Role Tùy Chỉnh</a>
+            <a href="#" data-target="#qna">Q&A</a>
+            <hr style="margin: 1rem 1.5rem;">
+            <a href="{{ url_for('members', guild_id=guild_id) }}">Quản lý Thành viên</a>
+            <a href="{{ url_for('history', guild_id=guild_id) }}">Lịch sử Giao dịch</a>
+        </div>
+        <div class="sidebar-footer">
+             <a href="{{ url_for('index') }}" class="poetic-button poetic-button-secondary">Về trang chủ</a>
+        </div>
+    </nav>
+    {% endif %}
+
     <div class="alert-container">
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -27,10 +52,23 @@
         {% endif %}
     {% endwith %}
     </div>
-
-    <main class="poetic-container">
+    
+    <main class="content-wrapper {% if guild %}with-sidebar{% endif %}">
         {% block content %}{% endblock %}
     </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('sidebarToggle');
+        
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function() {
+                document.body.classList.toggle('sidebar-active');
+            });
+        }
+    });
+    </script>
     
 </body>
 </html>

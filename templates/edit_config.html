@@ -8,16 +8,7 @@
         <h2 class="poetic-header">Chỉnh sửa: {{ guild.name or guild_id }}</h2>
     </div>
     <div class="poetic-card-body">
-        <div class="config-nav" id="configTabNav">
-            <button class="config-nav-button active" data-target="#general" type="button">Cài đặt chung</button>
-            <button class="config-nav-button" data-target="#shoproles" type="button">Quản lý Role Shop</button>
-            <button class="config-nav-button" data-target="#messages" type="button">Tin nhắn & Embeds</button>
-            <button class="config-nav-button" data-target="#rates" type="button">Tỷ lệ Coin</button>
-            <button class="config-nav-button" data-target="#customrole" type="button">Role Tùy Chỉnh</button>
-            <button class="config-nav-button" data-target="#qna" type="button">Q&A</button>
-            <a href="{{ url_for('members', guild_id=guild_id) }}" class="config-nav-button" type="button">Quản lý Thành viên</a>
-            <a href="{{ url_for('history', guild_id=guild_id) }}" class="config-nav-button" type="button">Lịch sử Giao dịch</a>
-        </div>
+        
         <form method="POST" id="config-form">
 
             <div class="tab-content" id="configTabContent">
@@ -269,7 +260,6 @@
             </div>
             
             <div class="form-actions">
-                <a href="{{ url_for('index') }}" class="poetic-button poetic-button-secondary">Hủy</a>
                 <button type="submit" name="submit" class="poetic-button poetic-button-primary">Lưu thay đổi</button>
             </div>
         </form>
@@ -337,19 +327,34 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const tabButtons = document.querySelectorAll('.config-nav-button');
+    const navLinks = document.querySelectorAll('.sidebar-nav a');
     const tabPanes = document.querySelectorAll('.tab-content .tab-pane');
+    const path = window.location.pathname;
+    
+    // logic dieu huong tab
+    navLinks.forEach(link => {
+        const targetId = link.getAttribute('data-target');
+        if (targetId) { // chi xu ly cac link co data-target
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                navLinks.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                tabPanes.forEach(pane => pane.classList.remove('active'));
+                document.querySelector(targetId).classList.add('active');
+            });
+        }
 
-    tabButtons.forEach(button => {
-        button.addEventListener('click', function (e) {
-            if (this.tagName === 'A') return; 
-            e.preventDefault();
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            this.classList.add('active');
-            const targetId = this.getAttribute('data-target');
-            tabPanes.forEach(pane => pane.classList.remove('active'));
-            document.querySelector(targetId).classList.add('active');
-        });
+        // logic active link
+        if (link.getAttribute('href') !== '#' && path.includes(link.getAttribute('href'))) {
+             navLinks.forEach(btn => btn.classList.remove('active'));
+             link.classList.add('active');
+        } else if (link.getAttribute('href') === '#') {
+             // trang config, active tab dau tien
+            if(path.includes('edit') && !path.includes('member')) {
+                document.querySelector('.sidebar-nav a[data-target="#general"]').classList.add('active');
+            }
+        }
     });
 
     const form = document.getElementById('config-form');

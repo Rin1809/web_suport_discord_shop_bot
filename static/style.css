@@ -1,5 +1,3 @@
-/* bot-dashboard/static/style.css */
-
 /* --- BIEN MAU & FONT --- */
 :root {
     --font-family-poetic: "Playwrite DK Loopet", cursive;
@@ -29,6 +27,9 @@
     --success-color-rgb: 166, 227, 161;
     --danger-color: #f38ba8;
     --danger-color-rgb: 243, 139, 168;
+
+    --sidebar-width: 260px;
+    --sidebar-bg-rgb: 24, 26, 41;
 }
 
 /* --- DIEU CHINH CHUNG --- */
@@ -40,22 +41,135 @@ body {
     line-height: 1.6;
     margin: 0;
     overflow-x: hidden;
+    transition: background-color 0.3s ease;
 }
 
-.poetic-container {
+/* --- SIDEBAR CHINH --- */
+.sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: rgba(var(--sidebar-bg-rgb), 0.7);
+    backdrop-filter: blur(15px);
+    border-right: 1px solid rgba(var(--border-color-rgb), 0.2);
+    z-index: 100;
+    transform: translateX(0);
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+}
+.sidebar-header {
+    padding: 1.5rem 1.5rem 1rem 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(var(--border-color-rgb), 0.15);
+}
+.sidebar-header a {
+    text-decoration: none;
+}
+.sidebar-title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin: 0;
+    color: var(--highlight-color-poetic);
+}
+.sidebar-nav {
+    flex-grow: 1;
+    padding: 1.5rem 0;
+    overflow-y: auto;
+}
+.sidebar-nav a {
+    display: block;
+    padding: 0.8rem 1.8rem;
+    color: var(--subtext-color-poetic);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 400;
+    transition: all 0.25s ease;
+    border-left: 4px solid transparent;
+    margin: 0.2rem 0;
+}
+.sidebar-nav a:hover {
+    background-color: rgba(var(--highlight-color-poetic-rgb), 0.08);
+    color: var(--text-color-poetic);
+}
+.sidebar-nav a.active {
+    color: var(--primary-color);
+    background-color: rgba(var(--primary-color-rgb), 0.1);
+    border-left-color: var(--primary-color);
+    font-weight: 500;
+}
+.sidebar-footer {
+    padding: 1.5rem;
+    border-top: 1px solid rgba(var(--border-color-rgb), 0.15);
+    display: flex; /* them vao */
+    justify-content: center; /* them vao */
+}
+
+/* --- nut an/hien sidebar */
+.sidebar-toggle {
+    position: fixed;
+    top: 1.5rem;
+    left: 1.5rem;
+    z-index: 101;
+    background: rgba(var(--card-background-rgb), 0.5);
+    border: 1px solid var(--border-color);
+    color: var(--text-color-poetic);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+}
+.sidebar-toggle:hover {
+    background-color: rgba(var(--highlight-color-poetic-rgb), 0.2);
+    transform: scale(1.1);
+}
+
+/* --- BO CUC CHINH --- */
+.content-wrapper {
     position: relative;
     z-index: 1;
     min-height: 100vh;
     padding: clamp(2rem, 5vh, 4rem) 1.5rem;
     box-sizing: border-box;
-    max-width: 1400px; /* rong hon */
+    max-width: 1400px;
     margin: 0 auto;
+    transition: margin-left 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@media (min-width: 1024px) {
+    .content-wrapper.with-sidebar {
+        margin-left: var(--sidebar-width);
+        max-width: none;
+        padding-left: clamp(2rem, 5vw, 4rem);
+        padding-right: clamp(2rem, 5vw, 4rem);
+    }
+}
+@media (max-width: 1023px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    body.sidebar-active .sidebar {
+        transform: translateX(0);
+    }
+    .sidebar-toggle {
+        display: flex;
+    }
+    body.sidebar-active .sidebar-toggle {
+        left: calc(var(--sidebar-width) + 1rem);
+    }
 }
 
 .main-title {
     font-size: clamp(2.5rem, 6vw, 3.5rem);
     font-weight: 400;
-    margin-bottom: 3rem; /* them khoang cach */
+    margin-bottom: 3rem;
     letter-spacing: 1.5px;
     line-height: 1.3;
     text-align: center;
@@ -64,11 +178,7 @@ body {
 }
 
 .poetic-header {
-    background: linear-gradient(120deg, 
-        var(--secondary-color) 20%, 
-        var(--primary-color) 50%, 
-        var(--info-color) 80%
-    );
+    background: linear-gradient(120deg, var(--secondary-color) 20%, var(--primary-color) 50%, var(--info-color) 80%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -84,7 +194,7 @@ body {
     background: transparent;
     animation-name: twinkle;
     animation-iteration-count: infinite;
-    z-index: -1;
+    z-index: -2;
 }
 .starfield { animation-duration: 7s; box-shadow: 759px 1239px #FFF,1783px 1475px #FFF,183px 1819px #FFF,289px 1502px #FFF,1595px 1475px #FFF,370px 1565px #FFF,483px 119px #FFF,215px 1251px #FFF,488px 1222px #FFF,114px 1729px #FFF,1458px 1506px #FFF,1399px 744px #FFF,1596px 832px #FFF,699px 1269px #FFF,1599px 1974px #FFF,61px 1856px #FFF,88px 1243px #FFF,735px 1982px #FFF,139px 232px #FFF,38px 235px #FFF,114px 1162px #FFF,354px 1636px #FFF,1320px 1550px #FFF,1564px 341px #FFF,1355px 1162px #FFF,1218px 749px #FFF,1234px 1779px #FFF,1920px 1118px #FFF,1344px 1238px #FFF,1402px 1404px #FFF,483px 1860px #FFF,597px 1120px #FFF,1229px 1968px #FFF,1194px 1257px #FFF,1250px 1234px #FFF,1202px 28px #FFF,1253px 449px #FFF,1138px 1010px #FFF,42px 799px #FFF,970px 1591px #FFF,1805px 76px #FFF,622px 1316px #FFF,1283px 432px #FFF,187px 809px #FFF,1931px 406px #FFF,1053px 1084px #FFF,1102px 1386px #FFF,1109px 1916px #FFF,1366px 1341px #FFF,1248px 1214px #FFF; }
 .starfield::before { animation-duration: 5s; width: 2px; height: 2px; box-shadow: 104px 1247px #FFF,1992px 1914px #FFF,143px 1195px #FFF,1075px 1417px #FFF,949px 250px #FFF,72px 1459px #FFF,1316px 1236px #FFF,579px 1935px #FFF,1781px 1960px #FFF,1976px 1736px #FFF,1652px 1576px #FFF,879px 1039px #FFF,930px 1152px #FFF,1051px 1373px #FFF,1648px 135px #FFF,1597px 461px #FFF,1968px 433px #FFF,1963px 1150px #FFF,309px 233px #FFF,273px 1319px #FFF,853px 439px #FFF,1148px 1172px #FFF,951px 109px #FFF,1529px 188px #FFF,517px 747px #FFF,1250px 1297px #FFF,1166px 1319px #FFF,22px 1184px #FFF,1904px 1827px #FFF,1118px 1908px #FFF,354px 1119px #FFF,191px 1279px #FFF,224px 345px #FFF,822px 698px #FFF,1915px 129px #FFF,691px 1197px #FFF,1637px 1151px #FFF,744px 1845px #FFF,1473px 1841px #FFF,1303px 174px #FFF,1179px 819px #FFF,1468px 1754px #FFF,1784px 1085px #FFF,917px 1883px #FFF,861px 1150px #FFF,566px 873px #FFF,1396px 1993px #FFF,966px 1289px #FFF,1467px 32px #FFF; }
@@ -170,7 +280,6 @@ body {
     box-shadow: 0 0 10px rgba(var(--highlight-color-poetic-rgb), 0.3);
 }
 
-
 /* --- TRANG EDIT_CONFIG --- */
 .poetic-card {
     background-color: rgba(var(--card-background-rgb), 0.5);
@@ -180,6 +289,10 @@ body {
     border-radius: 1.5rem;
     padding: clamp(2rem, 4vw, 3rem);
     box-shadow: 0 10px 35px -10px rgba(0,0,0,0.5);
+    transition: all 0.3s ease;
+}
+.poetic-card:hover {
+    box-shadow: 0 15px 45px -10px rgba(0,0,0,0.7), 0 0 15px rgba(var(--highlight-color-poetic-rgb), 0.1);
 }
 .poetic-card-header h2 {
     font-size: clamp(1.8rem, 5vw, 2.4rem);
@@ -199,43 +312,11 @@ body {
     height: 80px;
     border-radius: 50%;
 }
-
+.page-header-actions {
+    margin-bottom: 2rem;
+}
 
 /* --- TABS --- */
-.config-nav {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-bottom: 2rem;
-    border-bottom: 1px solid rgba(var(--border-color-rgb), 0.25);
-    padding-bottom: 2rem;
-}
-.config-nav-button, .config-nav a.config-nav-button {
-    font-family: inherit;
-    font-weight: 500;
-    font-size: 1rem;
-    color: var(--subtext-color-poetic);
-    background-color: transparent;
-    border: 2px solid transparent;
-    padding: 0.7rem 1.8rem;
-    border-radius: 9999px;
-    cursor: pointer;
-    transition: all 0.25s ease-in-out;
-    text-decoration: none;
-}
-.config-nav-button:hover, .config-nav a.config-nav-button:hover {
-    color: var(--text-color-poetic);
-    background-color: rgba(var(--highlight-color-poetic-rgb), 0.1);
-}
-.config-nav-button.active, .config-nav a.config-nav-button.active {
-    color: var(--primary-color);
-    border-color: rgba(var(--primary-color-rgb), 0.5);
-    background-color: rgba(var(--primary-color-rgb), 0.15);
-    box-shadow: 0 0 15px rgba(var(--primary-color-rgb), 0.3);
-}
-
 .tab-content .tab-pane { display: none; }
 .tab-content .tab-pane.active { display: block; animation: fadeIn 0.5s; }
 
@@ -282,7 +363,7 @@ body {
 
 textarea.form-control-poetic { 
     min-height: 120px; 
-    resize: vertical; /* cho phep keo doc */
+    resize: vertical;
     transition: height 0.3s ease-in-out;
 }
 
@@ -338,7 +419,7 @@ hr {
     color: var(--highlight-color-poetic);
 }
 .textarea-wrapper.expanded .form-control-poetic {
-    resize: none; /* tat keo khi mo rong */
+    resize: none;
 }
 
 /* --- NUT --- */
@@ -450,7 +531,7 @@ hr {
     top: 2rem;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 1000;
+    z-index: 1050;
     width: 90%;
     max-width: 900px;
 }
