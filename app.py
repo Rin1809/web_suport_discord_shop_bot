@@ -317,6 +317,10 @@ def edit_config(guild_id):
             config[key] = default_value
     
     guild_details = discord_api_request(f"/guilds/{guild_id}")
+    if guild_details:
+        icon_hash = guild_details.get('icon')
+        guild_details['icon_url'] = f"https://cdn.discordapp.com/icons/{guild_id}/{icon_hash}.png" if icon_hash else "https://cdn.discordapp.com/embed/avatars/0.png"
+    
     all_channels = discord_api_request(f"/guilds/{guild_id}/channels")
     all_roles_raw = discord_api_request(f"/guilds/{guild_id}/roles")
 
@@ -540,7 +544,7 @@ def history(guild_id):
         transactions=transactions,
         page=page,
         total_pages=total_pages,
-        guild_id=guild_id # fix: them guild_id
+        guild_id=guild_id
     )
 
 

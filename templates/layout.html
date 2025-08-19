@@ -19,6 +19,8 @@
     <div class="starfield"></div>
     <div class="starfield"></div>
 
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     {% if guild %}
     <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Menu">☰</button>
     <nav class="sidebar" id="sidebar">
@@ -58,13 +60,18 @@
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         // an/hien sidebar
-        const sidebar = document.getElementById('sidebar');
         const toggleBtn = document.getElementById('sidebarToggle');
+        const overlay = document.getElementById('sidebarOverlay');
         
+        function toggleSidebar() {
+            document.body.classList.toggle('sidebar-active');
+        }
+
         if (toggleBtn) {
-            toggleBtn.addEventListener('click', function() {
-                document.body.classList.toggle('sidebar-active');
-            });
+            toggleBtn.addEventListener('click', toggleSidebar);
+        }
+        if (overlay) {
+            overlay.addEventListener('click', toggleSidebar);
         }
         
         // auto hide alert

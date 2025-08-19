@@ -4,14 +4,14 @@
 
 {% block content %}
 <div class="poetic-card">
-    <div class="poetic-card-header">
-        <h2 class="poetic-header">Chỉnh sửa: {{ guild.name or guild_id }}</h2>
+    <div class="poetic-card-header poetic-card-header-with-icon">
+        <img src="{{ guild.icon_url }}" alt="Server Icon" class="header-icon">
+        <h2 class="poetic-header">{{ guild.name or guild_id }}</h2>
     </div>
     <div class="poetic-card-body">
         
         <form method="POST" id="config-form">
 
-            <!-- dieu huong tab moi -->
             <ul class="nav-tabs" id="configTabs">
                 <li><a class="nav-link active" data-target="#general">Cài đặt chung</a></li>
                 <li><a class="nav-link" data-target="#shoproles">Role Shop</a></li>
@@ -276,7 +276,7 @@
     </div>
 </div>
 
-<!-- templates cho js -->
+<!-- templates js -->
 <template id="shop-role-template">
     <div class="dynamic-row">
         <div class="dynamic-row-content" style="grid-template-columns: 2fr 1fr 1fr;">
@@ -335,9 +335,30 @@
     </div>
 </template>
 
+<template id="qna-template">
+    <div class="dynamic-row qna-row">
+        <div class="qna-row-header">
+            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Câu hỏi (menu)</label><input type="text" class="form-control-poetic" name="qna_label[]"></div>
+            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Mô tả ngắn</label><input type="text" class="form-control-poetic" name="qna_description[]"></div>
+            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Emoji</label><input type="text" class="form-control-poetic" name="qna_emoji[]"></div>
+        </div>
+        <div class="qna-row-body">
+            <div class="form-group-poetic" style="margin:0; flex-grow:1;"><label class="form-label-poetic">Tiêu đề trả lời</label><input type="text" class="form-control-poetic" name="qna_answer_title[]"></div>
+            <div class="dynamic-row-actions"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div>
+        </div>
+        <div class="form-group-poetic" style="margin:0; width: 100%;">
+            <div class="textarea-wrapper">
+                <label class="form-label-poetic">Nội dung trả lời</label>
+                <button type="button" class="expand-toggle-btn" title="Mở rộng/Thu gọn">+</button>
+                <textarea class="form-control-poetic" name="qna_answer_description[]" rows="3"></textarea>
+            </div>
+        </div>
+    </div>
+</template>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // logic tab moi
+    // logic tab
     const tabContainer = document.getElementById('configTabs');
     if (tabContainer) {
         const navLinks = tabContainer.querySelectorAll('.nav-link');
@@ -346,10 +367,8 @@ document.addEventListener('DOMContentLoaded', function () {
         navLinks.forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
-
                 navLinks.forEach(l => l.classList.remove('active'));
                 this.classList.add('active');
-
                 tabPanes.forEach(p => p.classList.remove('active'));
                 const targetPane = document.querySelector(this.getAttribute('data-target'));
                 if (targetPane) {
@@ -359,7 +378,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // logic nut mo rong textarea
+    // mo rong textarea
     const form = document.getElementById('config-form');
     if (form) {
         form.addEventListener('click', function(event) {
@@ -372,31 +391,33 @@ document.addEventListener('DOMContentLoaded', function () {
                     const isExpanded = wrapper.classList.toggle('expanded');
                     target.textContent = isExpanded ? '−' : '+';
                     if (isExpanded) {
+                        // tinh toan chieu cao
                         textarea.style.height = 'auto';
                         textarea.style.height = (textarea.scrollHeight + 5) + 'px';
-                        textarea.style.resize = 'none';
                     } else {
                         textarea.style.height = ''; 
-                        textarea.style.resize = '';
                     }
                 }
             }
         });
     }
 
-    // active sidebar link
+    // active link sidebar
     const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
     const path = window.location.pathname;
     sidebarLinks.forEach(link => {
-        if (link.getAttribute('href') !== '#' && path.includes(link.getAttribute('href'))) {
+        const href = link.getAttribute('href');
+        if (href && href !== '#' && path.includes(href)) {
              sidebarLinks.forEach(btn => btn.classList.remove('active'));
              link.classList.add('active');
         }
     });
-    // active link config mac dinh
-    if (path.includes('edit') && !path.includes('member')) {
+    
+    // active mac dinh
+    if (path.includes('/edit/') && !path.includes('/member/') && !path.includes('/history')) {
         const configLink = document.querySelector('.sidebar-nav a[href*="/edit/{{guild_id}}"]');
-        if(configLink && !path.includes('member') && !path.includes('history')) {
+         if(configLink && !configLink.href.includes('member') && !configLink.href.includes('history')) {
+            sidebarLinks.forEach(btn => btn.classList.remove('active'));
             configLink.classList.add('active');
         }
     }
@@ -423,26 +444,9 @@ function addChannelRate() {
 }
 
 function addQnA() { 
-    const html = `
-    <div class="dynamic-row qna-row">
-        <div class="qna-row-header">
-            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Câu hỏi (menu)</label><input type="text" class="form-control-poetic" name="qna_label[]"></div>
-            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Mô tả ngắn</label><input type="text" class="form-control-poetic" name="qna_description[]"></div>
-            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Emoji</label><input type="text" class="form-control-poetic" name="qna_emoji[]"></div>
-        </div>
-        <div class="qna-row-body">
-            <div class="form-group-poetic" style="margin:0; flex-grow:1;"><label class="form-label-poetic">Tiêu đề trả lời</label><input type="text" class="form-control-poetic" name="qna_answer_title[]"></div>
-            <div class="dynamic-row-actions"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div>
-        </div>
-        <div class="form-group-poetic" style="margin:0; width: 100%;">
-            <div class="textarea-wrapper">
-                <label class="form-label-poetic">Nội dung trả lời</label>
-                <button type="button" class="expand-toggle-btn" title="Mở rộng/Thu gọn">+</button>
-                <textarea class="form-control-poetic" name="qna_answer_description[]" rows="3"></textarea>
-            </div>
-        </div>
-    </div>`;
-    document.getElementById('qna-container').insertAdjacentHTML('beforeend', html);
+    const template = document.getElementById('qna-template');
+    const clone = template.content.cloneNode(true);
+    document.getElementById('qna-container').appendChild(clone);
 }
 </script>
 {% endblock %}

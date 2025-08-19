@@ -34,7 +34,29 @@
     --sidebar-bg-rgb: 24, 26, 41;
 }
 
+/* --- thanh cuon --- */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(var(--background-color-rgb), 0.5);
+}
+::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--primary-color);
+}
+
 /* --- dieu chinh chung --- */
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: var(--font-family-poetic), var(--font-family-fallback);
     font-weight: 300;
