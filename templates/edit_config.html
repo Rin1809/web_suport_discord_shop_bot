@@ -19,14 +19,14 @@
 
             <div class="tab-content" id="configTabContent">
                 <div class="tab-pane active" id="general">
-                    <div class="dynamic-row-grid">
+                    <div class="form-grid">
                         <div class="form-group-poetic">
                             <label for="shop_channel_id" class="form-label-poetic">Kênh Shop</label>
                             <select class="form-select-poetic" id="shop_channel_id" name="shop_channel_id" required>
                                 <option value="">-- Chọn một kênh --</option>
                                 {% for channel in text_channels %}
                                     <option value="{{ channel.id }}" {% if channel.id|string == config.shop_channel_id|string %}selected{% endif %}>
-                                        #{{ channel.name }} (ID: {{ channel.id }})
+                                        #{{ channel.name }}
                                     </option>
                                 {% endfor %}
                             </select>
@@ -51,27 +51,25 @@
 
                 <div class="tab-pane" id="messages">
                     <h5 class="form-section-title">Embed Shop Chính</h5>
-                    <div class="dynamic-row-grid">
+                    <div class="form-grid">
                         <div class="form-group-poetic"><label class="form-label-poetic">Tiêu đề</label><input type="text" class="form-control-poetic" name="MESSAGES[SHOP_EMBED_TITLE]" value="{{ config.MESSAGES.get('SHOP_EMBED_TITLE', 'Shop Role') }}"></div>
                         <div class="form-group-poetic"><label class="form-label-poetic">URL Thumbnail</label><input type="url" class="form-control-poetic" name="SHOP_EMBED_THUMBNAIL_URL" value="{{ config.get('SHOP_EMBED_THUMBNAIL_URL', '') }}"></div>
-                        <div class="form-group-poetic" style="grid-column: 1 / -1;"><label class="form-label-poetic">Mô tả</label><textarea class="form-control-poetic" name="MESSAGES[SHOP_EMBED_DESCRIPTION]" rows="3">{{ config.MESSAGES.get('SHOP_EMBED_DESCRIPTION', 'Chào mừng') }}</textarea></div>
-                        <div class="form-group-poetic" style="grid-column: 1 / -1;"><label class="form-label-poetic">URL Ảnh Lớn</label><input type="url" class="form-control-poetic" name="SHOP_EMBED_IMAGE_URL" value="{{ config.get('SHOP_EMBED_IMAGE_URL', '') }}"></div>
+                        <div class="form-group-poetic full-width"><label class="form-label-poetic">Mô tả</label><textarea class="form-control-poetic" name="MESSAGES[SHOP_EMBED_DESCRIPTION]" rows="3">{{ config.MESSAGES.get('SHOP_EMBED_DESCRIPTION', 'Chào mừng') }}</textarea></div>
+                        <div class="form-group-poetic full-width"><label class="form-label-poetic">URL Ảnh Lớn</label><input type="url" class="form-control-poetic" name="SHOP_EMBED_IMAGE_URL" value="{{ config.get('SHOP_EMBED_IMAGE_URL', '') }}"></div>
                     </div>
                     <hr/>
                     <h5 class="form-section-title">Embed Thông Tin Tài Khoản</h5>
-                    <div class="dynamic-row-grid">
+                    <div class="form-grid">
                          <div class="form-group-poetic"><label class="form-label-poetic">Tiêu đề</label><input type="text" class="form-control-poetic" name="MESSAGES[ACCOUNT_INFO_TITLE]" value="{{ config.MESSAGES.get('ACCOUNT_INFO_TITLE', '') }}"></div>
-                         <div class="form-group-poetic" style="grid-column: 1 / -1;"><label class="form-label-poetic">Mô tả</label><textarea class="form-control-poetic" name="MESSAGES[ACCOUNT_INFO_DESC]" rows="2">{{ config.MESSAGES.get('ACCOUNT_INFO_DESC', '') }}</textarea></div>
+                         <div class="form-group-poetic full-width"><label class="form-label-poetic">Mô tả</label><textarea class="form-control-poetic" name="MESSAGES[ACCOUNT_INFO_DESC]" rows="2">{{ config.MESSAGES.get('ACCOUNT_INFO_DESC', '') }}</textarea></div>
                         <div class="form-group-poetic"><label class="form-label-poetic">Tên trường "Số dư"</label><input type="text" class="form-control-poetic" name="MESSAGES[BALANCE_FIELD_NAME]" value="{{ config.MESSAGES.get('BALANCE_FIELD_NAME', 'Số Dư Hiện Tại') }}"></div>
                         <div class="form-group-poetic"><label class="form-label-poetic">Giá trị trường "Số dư"</label><input type="text" class="form-control-poetic" name="MESSAGES[BALANCE_FIELD_VALUE]" value="{{ config.MESSAGES.get('BALANCE_FIELD_VALUE', '{balance} coin') }}"><div class="form-text-poetic">Dùng <code>{balance}</code>.</div></div>
                     </div>
-                    <hr/>
-                    <h5 class="form-section-title">...</h5>
                 </div>
 
                 <div class="tab-pane" id="rates">
                     <h5 class="form-section-title">Tỷ lệ mặc định</h5>
-                    <div class="dynamic-row-grid">
+                    <div class="form-grid">
                         <div class="form-group-poetic"><label class="form-label-poetic">Tin nhắn / 1 coin</label><input type="number" class="form-control-poetic" name="CURRENCY_RATES[default][MESSAGES_PER_COIN]" value="{{ config.CURRENCY_RATES.default.get('MESSAGES_PER_COIN', '') }}"></div>
                         <div class="form-group-poetic"><label class="form-label-poetic">Reaction / 1 coin</label><input type="number" class="form-control-poetic" name="CURRENCY_RATES[default][REACTIONS_PER_COIN]" value="{{ config.CURRENCY_RATES.default.get('REACTIONS_PER_COIN', '') }}"></div>
                     </div>
@@ -80,32 +78,36 @@
                     <div id="category-rates-container">
                         {% for cat_id, rates in config.CURRENCY_RATES.categories.items() %}
                         <div class="dynamic-row rates-row">
-                            <div><input type="number" class="form-control-poetic" name="category_rate_id[]" value="{{ cat_id }}" placeholder="ID Danh mục"><small class="form-text-poetic ps-2">{{ all_channels_map.get(cat_id, 'Không tìm thấy tên') }}</small></div>
-                            <div><input type="number" class="form-control-poetic" name="category_rate_messages[]" value="{{ rates.MESSAGES_PER_COIN or '' }}" placeholder="Tin nhắn / coin"></div>
-                            <div><input type="number" class="form-control-poetic" name="category_rate_reactions[]" value="{{ rates.REACTIONS_PER_COIN or '' }}" placeholder="Reaction / coin"></div>
-                            <div class="dynamic-row-controls"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div>
+                            <div class="dynamic-row-content">
+                                <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">ID Danh mục</label><input type="number" class="form-control-poetic" name="category_rate_id[]" value="{{ cat_id }}"><small class="form-text-poetic">{{ all_channels_map.get(cat_id, 'Không tìm thấy tên') }}</small></div>
+                                <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Tin nhắn/coin</label><input type="number" class="form-control-poetic" name="category_rate_messages[]" value="{{ rates.MESSAGES_PER_COIN or '' }}"></div>
+                                <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Reaction/coin</label><input type="number" class="form-control-poetic" name="category_rate_reactions[]" value="{{ rates.REACTIONS_PER_COIN or '' }}"></div>
+                            </div>
+                            <div class="dynamic-row-actions"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div>
                         </div>
                         {% endfor %}
                     </div>
-                    <button type="button" class="poetic-button poetic-button-success" onclick="addCategoryRate()">Thêm</button>
+                    <button type="button" class="poetic-button poetic-button-success" style="margin-top: 1rem;" onclick="addCategoryRate()">Thêm</button>
                     <hr>
                     <h5 class="form-section-title">Tỷ lệ riêng cho Kênh</h5>
                     <div id="channel-rates-container">
                          {% for chan_id, rates in config.CURRENCY_RATES.channels.items() %}
                         <div class="dynamic-row rates-row">
-                            <div><input type="number" class="form-control-poetic" name="channel_rate_id[]" value="{{ chan_id }}" placeholder="ID Kênh"><small class="form-text-poetic ps-2">#{{ all_channels_map.get(chan_id, 'Không tìm thấy tên') }}</small></div>
-                            <div><input type="number" class="form-control-poetic" name="channel_rate_messages[]" value="{{ rates.MESSAGES_PER_COIN or '' }}" placeholder="Tin nhắn / coin"></div>
-                            <div><input type="number" class="form-control-poetic" name="channel_rate_reactions[]" value="{{ rates.REACTIONS_PER_COIN or '' }}" placeholder="Reaction / coin"></div>
-                            <div class="dynamic-row-controls"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div>
+                             <div class="dynamic-row-content">
+                                <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">ID Kênh</label><input type="number" class="form-control-poetic" name="channel_rate_id[]" value="{{ chan_id }}"><small class="form-text-poetic">#{{ all_channels_map.get(chan_id, 'Không tìm thấy tên') }}</small></div>
+                                <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Tin nhắn/coin</label><input type="number" class="form-control-poetic" name="channel_rate_messages[]" value="{{ rates.MESSAGES_PER_COIN or '' }}"></div>
+                                <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Reaction/coin</label><input type="number" class="form-control-poetic" name="channel_rate_reactions[]" value="{{ rates.REACTIONS_PER_COIN or '' }}"></div>
+                            </div>
+                            <div class="dynamic-row-actions"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div>
                         </div>
                         {% endfor %}
                     </div>
-                    <button type="button" class="poetic-button poetic-button-success" onclick="addChannelRate()">Thêm</button>
+                    <button type="button" class="poetic-button poetic-button-success" style="margin-top: 1rem;" onclick="addChannelRate()">Thêm</button>
                 </div>
 
                 <div class="tab-pane" id="customrole">
                      <h5 class="form-section-title">Cài đặt Role Tùy Chỉnh (cho Booster)</h5>
-                     <div class="dynamic-row-grid">
+                     <div class="form-grid">
                          <div class="form-group-poetic"><label class="form-label-poetic">Số lần boost tối thiểu</label><input type="number" class="form-control-poetic" name="CUSTOM_ROLE_CONFIG[MIN_BOOST_COUNT]" value="{{ config.CUSTOM_ROLE_CONFIG.get('MIN_BOOST_COUNT', 2) }}"></div>
                          <div class="form-group-poetic"><label class="form-label-poetic">Giá (coin)</label><input type="number" class="form-control-poetic" name="CUSTOM_ROLE_CONFIG[PRICE]" value="{{ config.CUSTOM_ROLE_CONFIG.get('PRICE', 1000) }}"></div>
                     </div>
@@ -116,16 +118,16 @@
                     <div id="qna-container">
                         {% for item in config.get('QNA_DATA', []) %}
                         <div class="dynamic-row qna-row">
-                            <div class="qna-grid-top">
-                                <input type="text" class="form-control-poetic" name="qna_label[]" placeholder="Câu hỏi (menu)" value="{{ item.label }}">
-                                <input type="text" class="form-control-poetic" name="qna_description[]" placeholder="Mô tả ngắn" value="{{ item.description or '' }}">
-                                <input type="text" class="form-control-poetic" name="qna_emoji[]" placeholder="Emoji" value="{{ item.emoji or '' }}">
+                            <div class="qna-row-header">
+                                <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Câu hỏi (menu)</label><input type="text" class="form-control-poetic" name="qna_label[]" value="{{ item.label }}"></div>
+                                <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Mô tả ngắn</label><input type="text" class="form-control-poetic" name="qna_description[]" value="{{ item.description or '' }}"></div>
+                                <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Emoji</label><input type="text" class="form-control-poetic" name="qna_emoji[]" value="{{ item.emoji or '' }}"></div>
                             </div>
-                            <div class="qna-grid-bottom">
-                                <input type="text" class="form-control-poetic" name="qna_answer_title[]" placeholder="Tiêu đề câu trả lời" value="{{ item.answer_title or '' }}">
-                                <button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button>
+                            <div class="qna-row-body">
+                                <div class="form-group-poetic" style="margin:0; flex-grow:1;"><label class="form-label-poetic">Tiêu đề trả lời</label><input type="text" class="form-control-poetic" name="qna_answer_title[]" value="{{ item.answer_title or '' }}"></div>
+                                <div class="dynamic-row-actions"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div>
                             </div>
-                            <textarea class="form-control-poetic" name="qna_answer_description[]" rows="3" placeholder="Nội dung câu trả lời">{{ item.answer_description or '' }}</textarea>
+                            <div class="form-group-poetic" style="margin:0; width: 100%;"><label class="form-label-poetic">Nội dung trả lời</label><textarea class="form-control-poetic" name="qna_answer_description[]" rows="3">{{ item.answer_description or '' }}</textarea></div>
                         </div>
                         {% endfor %}
                     </div>
@@ -135,8 +137,7 @@
             
             <div class="form-actions">
                 <a href="{{ url_for('index') }}" class="poetic-button poetic-button-secondary">Hủy</a>
-                <!-- fix nut luu -->
-                <button type="submit" name="submit" form="config-form" class="poetic-button poetic-button-primary">Lưu thay đổi</button>
+                <button type="submit" name="submit" class="poetic-button poetic-button-primary">Lưu thay đổi</button>
             </div>
         </form>
     </div>
@@ -153,17 +154,56 @@ document.addEventListener('DOMContentLoaded', function () {
             tabButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
             const targetId = this.getAttribute('data-target');
-            tabPanes.forEach(pane => {
-                pane.classList.remove('active');
-            });
+            tabPanes.forEach(pane => pane.classList.remove('active'));
             document.querySelector(targetId).classList.add('active');
         });
     });
 });
 
+// ham js
 function removeRow(button) { button.closest('.dynamic-row').remove(); }
-function addCategoryRate() { document.getElementById('category-rates-container').insertAdjacentHTML('beforeend', `<div class="dynamic-row rates-row"><div><input type="number" class="form-control-poetic" name="category_rate_id[]" placeholder="ID Danh mục"></div><div><input type="number" class="form-control-poetic" name="category_rate_messages[]" placeholder="Tin nhắn / coin"></div><div><input type="number" class="form-control-poetic" name="category_rate_reactions[]" placeholder="Reaction / coin"></div><div class="dynamic-row-controls"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div></div>`); }
-function addChannelRate() { document.getElementById('channel-rates-container').insertAdjacentHTML('beforeend', `<div class="dynamic-row rates-row"><div><input type="number" class="form-control-poetic" name="channel_rate_id[]" placeholder="ID Kênh"></div><div><input type="number" class="form-control-poetic" name="channel_rate_messages[]" placeholder="Tin nhắn / coin"></div><div><input type="number" class="form-control-poetic" name="channel_rate_reactions[]" placeholder="Reaction / coin"></div><div class="dynamic-row-controls"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div></div>`); }
-function addQnA() { document.getElementById('qna-container').insertAdjacentHTML('beforeend', `<div class="dynamic-row qna-row"><div class="qna-grid-top"><input type="text" class="form-control-poetic" name="qna_label[]" placeholder="Câu hỏi (menu)"><input type="text" class="form-control-poetic" name="qna_description[]" placeholder="Mô tả ngắn"><input type="text" class="form-control-poetic" name="qna_emoji[]" placeholder="Emoji"></div><div class="qna-grid-bottom"><input type="text" class="form-control-poetic" name="qna_answer_title[]" placeholder="Tiêu đề câu trả lời"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div><textarea class="form-control-poetic" name="qna_answer_description[]" rows="3" placeholder="Nội dung câu trả lời"></textarea></div>`); }
+
+function addCategoryRate() { 
+    const html = `
+    <div class="dynamic-row rates-row">
+        <div class="dynamic-row-content">
+            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">ID Danh mục</label><input type="number" class="form-control-poetic" name="category_rate_id[]"></div>
+            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Tin nhắn/coin</label><input type="number" class="form-control-poetic" name="category_rate_messages[]"></div>
+            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Reaction/coin</label><input type="number" class="form-control-poetic" name="category_rate_reactions[]"></div>
+        </div>
+        <div class="dynamic-row-actions"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div>
+    </div>`;
+    document.getElementById('category-rates-container').insertAdjacentHTML('beforeend', html);
+}
+
+function addChannelRate() { 
+    const html = `
+    <div class="dynamic-row rates-row">
+        <div class="dynamic-row-content">
+            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">ID Kênh</label><input type="number" class="form-control-poetic" name="channel_rate_id[]"></div>
+            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Tin nhắn/coin</label><input type="number" class="form-control-poetic" name="channel_rate_messages[]"></div>
+            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Reaction/coin</label><input type="number" class="form-control-poetic" name="channel_rate_reactions[]"></div>
+        </div>
+        <div class="dynamic-row-actions"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div>
+    </div>`;
+    document.getElementById('channel-rates-container').insertAdjacentHTML('beforeend', html);
+}
+
+function addQnA() { 
+    const html = `
+    <div class="dynamic-row qna-row">
+        <div class="qna-row-header">
+            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Câu hỏi (menu)</label><input type="text" class="form-control-poetic" name="qna_label[]"></div>
+            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Mô tả ngắn</label><input type="text" class="form-control-poetic" name="qna_description[]"></div>
+            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Emoji</label><input type="text" class="form-control-poetic" name="qna_emoji[]"></div>
+        </div>
+        <div class="qna-row-body">
+            <div class="form-group-poetic" style="margin:0; flex-grow:1;"><label class="form-label-poetic">Tiêu đề trả lời</label><input type="text" class="form-control-poetic" name="qna_answer_title[]"></div>
+            <div class="dynamic-row-actions"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div>
+        </div>
+        <div class="form-group-poetic" style="margin:0; width: 100%;"><label class="form-label-poetic">Nội dung trả lời</label><textarea class="form-control-poetic" name="qna_answer_description[]" rows="3"></textarea></div>
+    </div>`;
+    document.getElementById('qna-container').insertAdjacentHTML('beforeend', html);
+}
 </script>
 {% endblock %}
