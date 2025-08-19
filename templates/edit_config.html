@@ -49,6 +49,28 @@
                             <div class="form-text-poetic">Ví dụ: 0.65 là hoàn lại 65%.</div>
                         </div>
                     </div>
+
+                    <h5 class="form-section-title">Cài đặt Hệ số nhân cho Booster</h5>
+                    <div class="form-grid">
+                        <div class="form-group-poetic">
+                            <label class="form-label-poetic">Bật/Tắt hệ số nhân</label>
+                            <select class="form-select-poetic" name="BOOSTER_MULTIPLIER_CONFIG[ENABLED]">
+                                <option value="true" {% if config.BOOSTER_MULTIPLIER_CONFIG.get('ENABLED') %}selected{% endif %}>Bật</option>
+                                <option value="false" {% if not config.BOOSTER_MULTIPLIER_CONFIG.get('ENABLED') %}selected{% endif %}>Tắt</option>
+                            </select>
+                            <div class="form-text-poetic">Bật để áp dụng hệ số nhân coin cho booster.</div>
+                        </div>
+                        <div class="form-group-poetic">
+                            <label class="form-label-poetic">Hệ số nhân cơ bản (x)</label>
+                            <input type="number" step="0.1" class="form-control-poetic" name="BOOSTER_MULTIPLIER_CONFIG[BASE_MULTIPLIER]" value="{{ config.BOOSTER_MULTIPLIER_CONFIG.get('BASE_MULTIPLIER', 2.0) }}">
+                            <div class="form-text-poetic">Hệ số nhân áp dụng cho lần boost đầu tiên.</div>
+                        </div>
+                        <div class="form-group-poetic">
+                            <label class="form-label-poetic">Mức cộng thêm cho mỗi boost (x)</label>
+                            <input type="number" step="0.1" class="form-control-poetic" name="BOOSTER_MULTIPLIER_CONFIG[PER_BOOST_ADDITION]" value="{{ config.BOOSTER_MULTIPLIER_CONFIG.get('PER_BOOST_ADDITION', 0.5) }}">
+                            <div class="form-text-poetic">Cộng thêm vào hệ số nhân cho mỗi lần boost sau lần đầu.</div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="tab-pane" id="messages">

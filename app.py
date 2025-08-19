@@ -124,6 +124,15 @@ def parse_form_data(form):
     if config.get('SELL_REFUND_PERCENTAGE'):
         config['SELL_REFUND_PERCENTAGE'] = float(config['SELL_REFUND_PERCENTAGE'])
 
+    # xu ly config booster
+    if 'BOOSTER_MULTIPLIER_CONFIG' in config:
+        booster_conf = config['BOOSTER_MULTIPLIER_CONFIG']
+        booster_conf['ENABLED'] = booster_conf.get('ENABLED') == 'true'
+        if booster_conf.get('BASE_MULTIPLIER'):
+            booster_conf['BASE_MULTIPLIER'] = float(booster_conf['BASE_MULTIPLIER'])
+        if booster_conf.get('PER_BOOST_ADDITION'):
+            booster_conf['PER_BOOST_ADDITION'] = float(booster_conf['PER_BOOST_ADDITION'])
+
 
     # ty le coin categories
     cat_ids = request.form.getlist('category_rate_id[]')
@@ -256,7 +265,8 @@ def edit_config(guild_id):
     keys_to_ensure = {
         "MESSAGES": {}, "FOOTER_MESSAGES": {}, 
         "CURRENCY_RATES": {"default": {}, "categories": {}, "channels": {}},
-        "CUSTOM_ROLE_CONFIG": {}, "QNA_DATA": []
+        "CUSTOM_ROLE_CONFIG": {}, "QNA_DATA": [],
+        "BOOSTER_MULTIPLIER_CONFIG": {}
     }
     for key, default_value in keys_to_ensure.items():
         if key not in config:
