@@ -234,7 +234,13 @@ body {
     border-color: var(--highlight-color-poetic);
     box-shadow: 0 0 10px rgba(var(--highlight-color-poetic-rgb), 0.3);
 }
-textarea.form-control-poetic { min-height: 120px; }
+
+textarea.form-control-poetic { 
+    min-height: 120px; 
+    resize: vertical; /* cho phep keo doc */
+    transition: height 0.3s ease-in-out;
+}
+
 .form-text-poetic {
     font-size: 0.85rem;
     color: var(--subtext-color-poetic);
@@ -257,6 +263,37 @@ hr {
     height: 1px;
     background-color: rgba(var(--border-color-rgb), 0.2);
     margin: 3rem 0;
+}
+
+/* --- TEXTAREA MO RONG --- */
+.textarea-wrapper {
+    position: relative;
+}
+.expand-toggle-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background-color: rgba(var(--border-color-rgb), 0.4);
+    color: var(--subtext-color-poetic);
+    border: 1px solid rgba(var(--border-color-rgb), 0.6);
+    border-radius: 0.5rem;
+    width: 28px;
+    height: 28px;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 2;
+}
+.expand-toggle-btn:hover {
+    background-color: rgba(var(--highlight-color-poetic-rgb), 0.2);
+    color: var(--highlight-color-poetic);
+}
+.textarea-wrapper.expanded .form-control-poetic {
+    resize: none; /* tat keo khi mo rong */
 }
 
 /* --- NUT --- */

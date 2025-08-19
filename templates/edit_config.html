@@ -54,14 +54,26 @@
                     <div class="form-grid">
                         <div class="form-group-poetic"><label class="form-label-poetic">Tiêu đề</label><input type="text" class="form-control-poetic" name="MESSAGES[SHOP_EMBED_TITLE]" value="{{ config.MESSAGES.get('SHOP_EMBED_TITLE', 'Shop Role') }}"></div>
                         <div class="form-group-poetic"><label class="form-label-poetic">URL Thumbnail</label><input type="url" class="form-control-poetic" name="SHOP_EMBED_THUMBNAIL_URL" value="{{ config.get('SHOP_EMBED_THUMBNAIL_URL', '') }}"></div>
-                        <div class="form-group-poetic full-width"><label class="form-label-poetic">Mô tả</label><textarea class="form-control-poetic" name="MESSAGES[SHOP_EMBED_DESCRIPTION]" rows="3">{{ config.MESSAGES.get('SHOP_EMBED_DESCRIPTION', 'Chào mừng') }}</textarea></div>
+                        <div class="form-group-poetic full-width">
+                            <div class="textarea-wrapper">
+                                <label class="form-label-poetic">Mô tả</label>
+                                <button type="button" class="expand-toggle-btn" title="Mở rộng/Thu gọn">+</button>
+                                <textarea class="form-control-poetic" name="MESSAGES[SHOP_EMBED_DESCRIPTION]" rows="3">{{ config.MESSAGES.get('SHOP_EMBED_DESCRIPTION', 'Chào mừng') }}</textarea>
+                            </div>
+                        </div>
                         <div class="form-group-poetic full-width"><label class="form-label-poetic">URL Ảnh Lớn</label><input type="url" class="form-control-poetic" name="SHOP_EMBED_IMAGE_URL" value="{{ config.get('SHOP_EMBED_IMAGE_URL', '') }}"></div>
                     </div>
                     <hr/>
                     <h5 class="form-section-title">Embed Thông Tin Tài Khoản</h5>
                     <div class="form-grid">
                          <div class="form-group-poetic"><label class="form-label-poetic">Tiêu đề</label><input type="text" class="form-control-poetic" name="MESSAGES[ACCOUNT_INFO_TITLE]" value="{{ config.MESSAGES.get('ACCOUNT_INFO_TITLE', '') }}"></div>
-                         <div class="form-group-poetic full-width"><label class="form-label-poetic">Mô tả</label><textarea class="form-control-poetic" name="MESSAGES[ACCOUNT_INFO_DESC]" rows="2">{{ config.MESSAGES.get('ACCOUNT_INFO_DESC', '') }}</textarea></div>
+                         <div class="form-group-poetic full-width">
+                             <div class="textarea-wrapper">
+                                 <label class="form-label-poetic">Mô tả</label>
+                                 <button type="button" class="expand-toggle-btn" title="Mở rộng/Thu gọn">+</button>
+                                 <textarea class="form-control-poetic" name="MESSAGES[ACCOUNT_INFO_DESC]" rows="2">{{ config.MESSAGES.get('ACCOUNT_INFO_DESC', '') }}</textarea>
+                             </div>
+                         </div>
                         <div class="form-group-poetic"><label class="form-label-poetic">Tên trường "Số dư"</label><input type="text" class="form-control-poetic" name="MESSAGES[BALANCE_FIELD_NAME]" value="{{ config.MESSAGES.get('BALANCE_FIELD_NAME', 'Số Dư Hiện Tại') }}"></div>
                         <div class="form-group-poetic"><label class="form-label-poetic">Giá trị trường "Số dư"</label><input type="text" class="form-control-poetic" name="MESSAGES[BALANCE_FIELD_VALUE]" value="{{ config.MESSAGES.get('BALANCE_FIELD_VALUE', '{balance} coin') }}"><div class="form-text-poetic">Dùng <code>{balance}</code>.</div></div>
                     </div>
@@ -70,8 +82,21 @@
                      <div class="form-grid">
                         <div class="form-group-poetic"><label class="form-label-poetic">Tiêu đề</label><input type="text" class="form-control-poetic" name="MESSAGES[EARNING_RATES_TITLE]" value="{{ config.MESSAGES.get('EARNING_RATES_TITLE', 'Tỷ lệ kiếm coin') }}"></div>
                         <div class="form-group-poetic"><label class="form-label-poetic">URL Ảnh</label><input type="url" class="form-control-poetic" name="EARNING_RATES_IMAGE_URL" value="{{ config.get('EARNING_RATES_IMAGE_URL', '') }}"></div>
-                        <div class="form-group-poetic full-width"><label class="form-label-poetic">Mô tả chính</label><textarea class="form-control-poetic" name="MESSAGES[EARNING_RATES_DESC]" rows="3">{{ config.MESSAGES.get('EARNING_RATES_DESC', '') }}</textarea><div class="form-text-poetic">Dùng <code>\n</code> để xuống dòng.</div></div>
-                        <div class="form-group-poetic full-width"><label class="form-label-poetic">Thông tin cho Booster</label><textarea class="form-control-poetic" name="MESSAGES[BOOSTER_MULTIPLIER_INFO]" rows="2">{{ config.MESSAGES.get('BOOSTER_MULTIPLIER_INFO', '') }}</textarea></div>
+                        <div class="form-group-poetic full-width">
+                            <div class="textarea-wrapper">
+                                <label class="form-label-poetic">Mô tả chính</label>
+                                <button type="button" class="expand-toggle-btn" title="Mở rộng/Thu gọn">+</button>
+                                <textarea class="form-control-poetic" name="MESSAGES[EARNING_RATES_DESC]" rows="3">{{ config.MESSAGES.get('EARNING_RATES_DESC', '') }}</textarea>
+                                <div class="form-text-poetic">Dùng <code>\n</code> để xuống dòng.</div>
+                            </div>
+                        </div>
+                        <div class="form-group-poetic full-width">
+                            <div class="textarea-wrapper">
+                                <label class="form-label-poetic">Thông tin cho Booster</label>
+                                <button type="button" class="expand-toggle-btn" title="Mở rộng/Thu gọn">+</button>
+                                <textarea class="form-control-poetic" name="MESSAGES[BOOSTER_MULTIPLIER_INFO]" rows="2">{{ config.MESSAGES.get('BOOSTER_MULTIPLIER_INFO', '') }}</textarea>
+                            </div>
+                        </div>
                         <div class="form-group-poetic full-width"><label class="form-label-poetic">Footer</label><input type="text" class="form-control-poetic" name="FOOTER_MESSAGES[EARNING_RATES]" value="{{ config.FOOTER_MESSAGES.get('EARNING_RATES', '') }}"></div>
                     </div>
                     <hr/>
@@ -81,7 +106,13 @@
                         <div class="form-group-poetic full-width"><label class="form-label-poetic">Khi đã sở hữu role</label><input type="text" class="form-control-poetic" name="MESSAGES[CUSTOM_ROLE_ALREADY_OWNED]" value="{{ config.MESSAGES.get('CUSTOM_ROLE_ALREADY_OWNED', 'Bạn đã có một role tùy chỉnh rồi. Hãy dùng nút "Quản lý Role" để chỉnh sửa.') }}"></div>
                         <div class="form-group-poetic full-width"><label class="form-label-poetic">Khi chưa sở hữu role (để quản lý)</label><input type="text" class="form-control-poetic" name="MESSAGES[CUSTOM_ROLE_NOT_OWNED]" value="{{ config.MESSAGES.get('CUSTOM_ROLE_NOT_OWNED', 'Bạn chưa tạo role tùy chỉnh nào cả.') }}"></div>
                         <div class="form-group-poetic full-width"><label class="form-label-poetic">Khi không đủ coin</label><input type="text" class="form-control-poetic" name="MESSAGES[CUSTOM_ROLE_NO_COIN]" value="{{ config.MESSAGES.get('CUSTOM_ROLE_NO_COIN', 'Bạn không đủ coin! Cần {price} coin nhưng bạn chỉ có {balance}.') }}"><div class="form-text-poetic">Dùng <code>{price}</code> và <code>{balance}</code>.</div></div>
-                        <div class="form-group-poetic full-width"><label class="form-label-poetic">Lời nhắc khi quản lý role</label><textarea class="form-control-poetic" name="MESSAGES[CUSTOM_ROLE_MANAGE_PROMPT]" rows="2">{{ config.MESSAGES.get('CUSTOM_ROLE_MANAGE_PROMPT', 'Đây là role tùy chỉnh của bạn. Sử dụng menu bên dưới để Sửa hoặc Xóa.') }}</textarea></div>
+                        <div class="form-group-poetic full-width">
+                            <div class="textarea-wrapper">
+                                <label class="form-label-poetic">Lời nhắc khi quản lý role</label>
+                                <button type="button" class="expand-toggle-btn" title="Mở rộng/Thu gọn">+</button>
+                                <textarea class="form-control-poetic" name="MESSAGES[CUSTOM_ROLE_MANAGE_PROMPT]" rows="2">{{ config.MESSAGES.get('CUSTOM_ROLE_MANAGE_PROMPT', 'Đây là role tùy chỉnh của bạn. Sử dụng menu bên dưới để Sửa hoặc Xóa.') }}</textarea>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -161,7 +192,13 @@
                                 <div class="form-group-poetic" style="margin:0; flex-grow:1;"><label class="form-label-poetic">Tiêu đề trả lời</label><input type="text" class="form-control-poetic" name="qna_answer_title[]" value="{{ item.answer_title or '' }}"></div>
                                 <div class="dynamic-row-actions"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div>
                             </div>
-                            <div class="form-group-poetic" style="margin:0; width: 100%;"><label class="form-label-poetic">Nội dung trả lời</label><textarea class="form-control-poetic" name="qna_answer_description[]" rows="3">{{ item.answer_description or '' }}</textarea></div>
+                            <div class="form-group-poetic" style="margin:0; width: 100%;">
+                                <div class="textarea-wrapper">
+                                    <label class="form-label-poetic">Nội dung trả lời</label>
+                                    <button type="button" class="expand-toggle-btn" title="Mở rộng/Thu gọn">+</button>
+                                    <textarea class="form-control-poetic" name="qna_answer_description[]" rows="3">{{ item.answer_description or '' }}</textarea>
+                                </div>
+                            </div>
                         </div>
                         {% endfor %}
                     </div>
@@ -217,8 +254,8 @@
 </template>
 
 <script>
-// xu ly tab nav
 document.addEventListener('DOMContentLoaded', function () {
+    // xu ly tab nav
     const tabButtons = document.querySelectorAll('.config-nav-button');
     const tabPanes = document.querySelectorAll('.tab-content .tab-pane');
 
@@ -230,6 +267,29 @@ document.addEventListener('DOMContentLoaded', function () {
             tabPanes.forEach(pane => pane.classList.remove('active'));
             document.querySelector(targetId).classList.add('active');
         });
+    });
+
+    // xu ly mo rong/thu gon textarea
+    const form = document.getElementById('config-form');
+    form.addEventListener('click', function(event) {
+        const target = event.target;
+        if (target.classList.contains('expand-toggle-btn')) {
+            event.preventDefault(); // tranh submit form
+            const wrapper = target.closest('.textarea-wrapper');
+            if (wrapper) {
+                const textarea = wrapper.querySelector('textarea');
+                wrapper.classList.toggle('expanded');
+                if (wrapper.classList.contains('expanded')) {
+                    target.textContent = '-';
+                    // set chieu cao auto de tinh lai scrollHeight
+                    textarea.style.height = 'auto'; 
+                    textarea.style.height = (textarea.scrollHeight + 5) + 'px';
+                } else {
+                    target.textContent = '+';
+                    textarea.style.height = ''; // quay ve css
+                }
+            }
+        }
     });
 });
 
@@ -260,7 +320,13 @@ function addQnA() {
             <div class="form-group-poetic" style="margin:0; flex-grow:1;"><label class="form-label-poetic">Tiêu đề trả lời</label><input type="text" class="form-control-poetic" name="qna_answer_title[]"></div>
             <div class="dynamic-row-actions"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div>
         </div>
-        <div class="form-group-poetic" style="margin:0; width: 100%;"><label class="form-label-poetic">Nội dung trả lời</label><textarea class="form-control-poetic" name="qna_answer_description[]" rows="3"></textarea></div>
+        <div class="form-group-poetic" style="margin:0; width: 100%;">
+            <div class="textarea-wrapper">
+                <label class="form-label-poetic">Nội dung trả lời</label>
+                <button type="button" class="expand-toggle-btn" title="Mở rộng/Thu gọn">+</button>
+                <textarea class="form-control-poetic" name="qna_answer_description[]" rows="3"></textarea>
+            </div>
+        </div>
     </div>`;
     document.getElementById('qna-container').insertAdjacentHTML('beforeend', html);
 }
