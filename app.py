@@ -54,7 +54,7 @@ def parse_form_data(form):
         'shop_channel_id', 'leaderboard_thread_id',
         'EMBED_COLOR', 'SELL_REFUND_PERCENTAGE',
         'SHOP_EMBED_THUMBNAIL_URL', 'SHOP_EMBED_IMAGE_URL',
-        'EARNING_RATES_IMAGE_URL' # them key moi vao day
+        'EARNING_RATES_IMAGE_URL'
     ]
     for key in simple_keys:
         if form.get(key):
@@ -140,7 +140,7 @@ def parse_form_data(form):
                 "description": qna_descriptions[i],
                 "emoji": qna_emojis[i],
                 "answer_title": qna_titles[i],
-                "answer_description": qna_descs[i].replace('\r\n', '\\n')
+                "answer_description": qna_descs[i] # fix
             })
 
     # chuyen defaultdict thanh dict bth
@@ -235,12 +235,6 @@ def edit_config(guild_id):
     for key, default_value in keys_to_ensure.items():
         if key not in config:
             config[key] = default_value
-    
-    # xuong dong
-    if "QNA_DATA" in config:
-        for item in config["QNA_DATA"]:
-            if "answer_description" in item and item["answer_description"]:
-                item["answer_description"] = item["answer_description"].replace('\\n', '\n')
     
     # lay thong tin tu discord
     guild_details = discord_api_request(f"/guilds/{guild_id}")
