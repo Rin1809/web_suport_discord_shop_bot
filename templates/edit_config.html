@@ -65,6 +65,24 @@
                         <div class="form-group-poetic"><label class="form-label-poetic">Tên trường "Số dư"</label><input type="text" class="form-control-poetic" name="MESSAGES[BALANCE_FIELD_NAME]" value="{{ config.MESSAGES.get('BALANCE_FIELD_NAME', 'Số Dư Hiện Tại') }}"></div>
                         <div class="form-group-poetic"><label class="form-label-poetic">Giá trị trường "Số dư"</label><input type="text" class="form-control-poetic" name="MESSAGES[BALANCE_FIELD_VALUE]" value="{{ config.MESSAGES.get('BALANCE_FIELD_VALUE', '{balance} coin') }}"><div class="form-text-poetic">Dùng <code>{balance}</code>.</div></div>
                     </div>
+                    <hr/>
+                    <h5 class="form-section-title">Embed Tỷ Lệ Đào Coin</h5>
+                     <div class="form-grid">
+                        <div class="form-group-poetic"><label class="form-label-poetic">Tiêu đề</label><input type="text" class="form-control-poetic" name="MESSAGES[EARNING_RATES_TITLE]" value="{{ config.MESSAGES.get('EARNING_RATES_TITLE', 'Tỷ lệ kiếm coin') }}"></div>
+                        <div class="form-group-poetic"><label class="form-label-poetic">URL Ảnh</label><input type="url" class="form-control-poetic" name="EARNING_RATES_IMAGE_URL" value="{{ config.get('EARNING_RATES_IMAGE_URL', '') }}"></div>
+                        <div class="form-group-poetic full-width"><label class="form-label-poetic">Mô tả chính</label><textarea class="form-control-poetic" name="MESSAGES[EARNING_RATES_DESC]" rows="3">{{ config.MESSAGES.get('EARNING_RATES_DESC', '') }}</textarea><div class="form-text-poetic">Dùng <code>\n</code> để xuống dòng.</div></div>
+                        <div class="form-group-poetic full-width"><label class="form-label-poetic">Thông tin cho Booster</label><textarea class="form-control-poetic" name="MESSAGES[BOOSTER_MULTIPLIER_INFO]" rows="2">{{ config.MESSAGES.get('BOOSTER_MULTIPLIER_INFO', '') }}</textarea></div>
+                        <div class="form-group-poetic full-width"><label class="form-label-poetic">Footer</label><input type="text" class="form-control-poetic" name="FOOTER_MESSAGES[EARNING_RATES]" value="{{ config.FOOTER_MESSAGES.get('EARNING_RATES', '') }}"></div>
+                    </div>
+                    <hr/>
+                    <h5 class="form-section-title">Tin Nhắn Role Tùy Chỉnh (Booster)</h5>
+                    <div class="form-grid">
+                        <div class="form-group-poetic full-width"><label class="form-label-poetic">Khi không đủ boost</label><input type="text" class="form-control-poetic" name="MESSAGES[CUSTOM_ROLE_NO_BOOSTS]" value="{{ config.MESSAGES.get('CUSTOM_ROLE_NO_BOOSTS', 'Bạn cần có ít nhất {min_boosts} boost để dùng tính năng này.') }}"><div class="form-text-poetic">Dùng <code>{min_boosts}</code> và <code>{boost_count}</code>.</div></div>
+                        <div class="form-group-poetic full-width"><label class="form-label-poetic">Khi đã sở hữu role</label><input type="text" class="form-control-poetic" name="MESSAGES[CUSTOM_ROLE_ALREADY_OWNED]" value="{{ config.MESSAGES.get('CUSTOM_ROLE_ALREADY_OWNED', 'Bạn đã có một role tùy chỉnh rồi. Hãy dùng nút "Quản lý Role" để chỉnh sửa.') }}"></div>
+                        <div class="form-group-poetic full-width"><label class="form-label-poetic">Khi chưa sở hữu role (để quản lý)</label><input type="text" class="form-control-poetic" name="MESSAGES[CUSTOM_ROLE_NOT_OWNED]" value="{{ config.MESSAGES.get('CUSTOM_ROLE_NOT_OWNED', 'Bạn chưa tạo role tùy chỉnh nào cả.') }}"></div>
+                        <div class="form-group-poetic full-width"><label class="form-label-poetic">Khi không đủ coin</label><input type="text" class="form-control-poetic" name="MESSAGES[CUSTOM_ROLE_NO_COIN]" value="{{ config.MESSAGES.get('CUSTOM_ROLE_NO_COIN', 'Bạn không đủ coin! Cần {price} coin nhưng bạn chỉ có {balance}.') }}"><div class="form-text-poetic">Dùng <code>{price}</code> và <code>{balance}</code>.</div></div>
+                        <div class="form-group-poetic full-width"><label class="form-label-poetic">Lời nhắc khi quản lý role</label><textarea class="form-control-poetic" name="MESSAGES[CUSTOM_ROLE_MANAGE_PROMPT]" rows="2">{{ config.MESSAGES.get('CUSTOM_ROLE_MANAGE_PROMPT', 'Đây là role tùy chỉnh của bạn. Sử dụng menu bên dưới để Sửa hoặc Xóa.') }}</textarea></div>
+                    </div>
                 </div>
 
                 <div class="tab-pane" id="rates">

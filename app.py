@@ -7,11 +7,11 @@ from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, flash
 from collections import defaultdict
 
-# Tai bien moi truong
+# tai env
 load_dotenv()
 
 app = Flask(__name__)
-# Can co secret key
+# can co secret key
 app.config['SECRET_KEY'] = os.urandom(24)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -21,7 +21,7 @@ API_BASE_URL = "https://discord.com/api/v10"
 # --- HELPER FUNCTIONS FOR DISCORD API ---
 
 def discord_api_request(endpoint):
-    # Ham helper de goi discord api
+    # ham goi discord api
     if not BOT_TOKEN:
         return None
     headers = {"Authorization": f"Bot {BOT_TOKEN}"}
@@ -37,7 +37,7 @@ def discord_api_request(endpoint):
 
 
 def get_db_connection():
-    # Ham ket noi db
+    # ham ket noi db
     try:
         conn = psycopg2.connect(DATABASE_URL)
         return conn
@@ -46,21 +46,21 @@ def get_db_connection():
         return None
 
 def parse_form_data(form):
-    # Ham xu ly du lieu tu form phuc tap
+    # ham xu ly data form
     config = defaultdict(dict)
     
-    # Cac key don le
+    # key don le
     simple_keys = [
-        'shop_channel_id', 'leaderboard_thread_id', # Them vao day
+        'shop_channel_id', 'leaderboard_thread_id',
         'EMBED_COLOR', 'SELL_REFUND_PERCENTAGE',
         'SHOP_EMBED_THUMBNAIL_URL', 'SHOP_EMBED_IMAGE_URL',
-        'EARNING_RATES_IMAGE_URL'
+        'EARNING_RATES_IMAGE_URL' # them key moi vao day
     ]
     for key in simple_keys:
         if form.get(key):
             config[key] = form.get(key)
     
-    # Cac key long nhau
+    # key long nhau
     for key, value in form.items():
         if '[' in key and ']' in key:
             parts = key.replace(']', '').split('[')
@@ -99,7 +99,7 @@ def parse_form_data(form):
         config['SELL_REFUND_PERCENTAGE'] = float(config['SELL_REFUND_PERCENTAGE'])
 
 
-    # Ty le coin categories
+    # ty le coin categories
     cat_ids = request.form.getlist('category_rate_id[]')
     cat_msgs = request.form.getlist('category_rate_messages[]')
     cat_reacts = request.form.getlist('category_rate_reactions[]')
@@ -112,7 +112,7 @@ def parse_form_data(form):
                 "REACTIONS_PER_COIN": int(cat_reacts[i]) if cat_reacts[i] else None
             }
 
-    # Ty le coin channels
+    # ty le coin channels
     chan_ids = request.form.getlist('channel_rate_id[]')
     chan_msgs = request.form.getlist('channel_rate_messages[]')
     chan_reacts = request.form.getlist('channel_rate_reactions[]')
@@ -125,7 +125,7 @@ def parse_form_data(form):
                 "REACTIONS_PER_COIN": int(chan_reacts[i]) if chan_reacts[i] else None
             }
 
-    # QnA
+    # qna
     qna_labels = request.form.getlist('qna_label[]')
     qna_descriptions = request.form.getlist('qna_description[]')
     qna_emojis = request.form.getlist('qna_emoji[]')
@@ -143,13 +143,13 @@ def parse_form_data(form):
                 "answer_description": qna_descs[i].replace('\r\n', '\\n')
             })
 
-    # Chuyen defaultdict thanh dict bth
+    # chuyen defaultdict thanh dict bth
     return json.loads(json.dumps(config))
 
 
 @app.route('/')
 def index():
-    # Trang chu, hien thi list server
+    # trang chu
     conn = get_db_connection()
     if not conn:
         flash("Không thể kết nối đến cơ sở dữ liệu!", "danger")
@@ -184,19 +184,19 @@ def index():
 
 @app.route('/edit/<int:guild_id>', methods=['GET', 'POST'])
 def edit_config(guild_id):
-    # Trang chinh sua config
+    # trang chinh sua
     conn = get_db_connection()
     if not conn:
         flash("Không thể kết nối đến cơ sở dữ liệu!", "danger")
         return redirect(url_for('index'))
 
     if request.method == 'POST':
-        # Parse all data tu form vao 1 object
+        # parse data
         config_data_json = parse_form_data(request.form)
 
         try:
             with conn.cursor() as cur:
-                # Update 1 cot JSONB duy nhat
+                # update
                 cur.execute(
                     """
                     UPDATE guild_configs
@@ -214,9 +214,8 @@ def edit_config(guild_id):
         
         return redirect(url_for('index'))
 
-    # Xu ly GET request
+    # xu ly GET
     with conn.cursor() as cur:
-        # Chi can lay 1 cot config_data
         cur.execute("SELECT config_data FROM guild_configs WHERE guild_id = %s;", (guild_id,))
         db_result = cur.fetchone()
     conn.close()
@@ -227,7 +226,7 @@ def edit_config(guild_id):
     
     config = db_result[0] or {}
 
-    # Dam bao cac key chinh luon ton tai de tranh loi
+    # dam bao key luon ton tai
     keys_to_ensure = {
         "MESSAGES": {}, "FOOTER_MESSAGES": {}, 
         "CURRENCY_RATES": {"default": {}, "categories": {}, "channels": {}},
@@ -237,13 +236,13 @@ def edit_config(guild_id):
         if key not in config:
             config[key] = default_value
     
-    # Xuong dong trong text area
+    # xuong dong
     if "QNA_DATA" in config:
         for item in config["QNA_DATA"]:
             if "answer_description" in item and item["answer_description"]:
                 item["answer_description"] = item["answer_description"].replace('\\n', '\n')
     
-    # Lay thong tin tu discord api
+    # lay thong tin tu discord
     guild_details = discord_api_request(f"/guilds/{guild_id}")
     all_channels = discord_api_request(f"/guilds/{guild_id}/channels")
     
@@ -253,13 +252,9 @@ def edit_config(guild_id):
     all_channels_map = {}
     
     if all_channels:
-        # lay kenh text cho dropdown shop
         text_channels = [ch for ch in all_channels if ch['type'] == 0]
-        # lay category cho dropdown rate
         category_channels = [ch for ch in all_channels if ch['type'] == 4]
-        # lay kenh co the chat de set rate
-        rateable_channels = [ch for ch in all_channels if ch['type'] in [0, 5, 15]] # text, news, forum
-        # tao map id -> ten
+        rateable_channels = [ch for ch in all_channels if ch['type'] in [0, 5, 15]]
         all_channels_map = {str(ch['id']): ch['name'] for ch in all_channels}
 
 
@@ -270,10 +265,9 @@ def edit_config(guild_id):
         guild=guild_details,
         text_channels=text_channels,
         all_channels_map=all_channels_map,
-        category_channels=category_channels, # pass vao template
-        rateable_channels=rateable_channels   # pass vao template
+        category_channels=category_channels,
+        rateable_channels=rateable_channels
     )
 
 if __name__ == '__main__':
-    # Chay app
     app.run(debug=True, port=5001)
