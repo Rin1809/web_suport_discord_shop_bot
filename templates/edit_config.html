@@ -10,6 +10,7 @@
     <div class="poetic-card-body">
         <div class="config-nav" id="configTabNav">
             <button class="config-nav-button active" data-target="#general" type="button">Cài đặt chung</button>
+            <button class="config-nav-button" data-target="#shoproles" type="button">Quản lý Role Shop</button>
             <button class="config-nav-button" data-target="#messages" type="button">Tin nhắn & Embeds</button>
             <button class="config-nav-button" data-target="#rates" type="button">Tỷ lệ Coin</button>
             <button class="config-nav-button" data-target="#customrole" type="button">Role Tùy Chỉnh</button>
@@ -71,6 +72,33 @@
                             <div class="form-text-poetic">Cộng thêm vào hệ số nhân cho mỗi lần boost sau lần đầu.</div>
                         </div>
                     </div>
+                </div>
+                
+                <div class="tab-pane" id="shoproles">
+                    <h5 class="form-section-title">Các Role đang bán</h5>
+                     <div class="form-text-poetic" style="margin-bottom: 1.5rem;">Nhập Tên, Giá và Màu. Nếu Role chưa tồn tại, hệ thống sẽ tự động tạo mới (yêu cầu bot có quyền 'Manage Roles').</div>
+                    <div id="shop-roles-container">
+                        {% for role in shop_roles %}
+                        <div class="dynamic-row">
+                            <div class="dynamic-row-content" style="grid-template-columns: 2fr 1fr 1fr;">
+                                <div class="form-group-poetic" style="margin:0;">
+                                    <label class="form-label-poetic">Tên Role</label>
+                                    <input type="text" class="form-control-poetic" name="shop_role_name[]" value="{{ role.name }}" placeholder="Ví dụ: VIP Member">
+                                </div>
+                                <div class="form-group-poetic" style="margin:0;">
+                                    <label class="form-label-poetic">Giá (coin)</label>
+                                    <input type="number" class="form-control-poetic" name="shop_role_price[]" value="{{ role.price }}" placeholder="Nhập giá">
+                                </div>
+                                <div class="form-group-poetic" style="margin:0;">
+                                    <label class="form-label-poetic">Màu (HEX)</label>
+                                    <input type="text" class="form-control-poetic" name="shop_role_color[]" value="{{ role.color }}" placeholder="#ffaaaa">
+                                </div>
+                            </div>
+                            <div class="dynamic-row-actions"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="poetic-button poetic-button-success" style="margin-top: 1rem;" onclick="addShopRole()">Thêm Role</button>
                 </div>
 
                 <div class="tab-pane" id="messages">
@@ -239,6 +267,26 @@
 </div>
 
 <!-- templates cho js -->
+<template id="shop-role-template">
+    <div class="dynamic-row">
+        <div class="dynamic-row-content" style="grid-template-columns: 2fr 1fr 1fr;">
+            <div class="form-group-poetic" style="margin:0;">
+                <label class="form-label-poetic">Tên Role</label>
+                <input type="text" class="form-control-poetic" name="shop_role_name[]" placeholder="Ví dụ: VIP Member">
+            </div>
+            <div class="form-group-poetic" style="margin:0;">
+                <label class="form-label-poetic">Giá (coin)</label>
+                <input type="number" class="form-control-poetic" name="shop_role_price[]" placeholder="Nhập giá">
+            </div>
+            <div class="form-group-poetic" style="margin:0;">
+                <label class="form-label-poetic">Màu (HEX)</label>
+                <input type="text" class="form-control-poetic" name="shop_role_color[]" value="#99aab5" placeholder="#ffaaaa">
+            </div>
+        </div>
+        <div class="dynamic-row-actions"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div>
+    </div>
+</template>
+
 <template id="category-rate-template">
     <div class="dynamic-row rates-row">
         <div class="dynamic-row-content">
@@ -279,13 +327,12 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // xu ly tab nav
     const tabButtons = document.querySelectorAll('.config-nav-button');
     const tabPanes = document.querySelectorAll('.tab-content .tab-pane');
 
     tabButtons.forEach(button => {
         button.addEventListener('click', function (e) {
-            if (this.tagName === 'A') return; // bo qua link
+            if (this.tagName === 'A') return; 
             e.preventDefault();
             tabButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
@@ -295,25 +342,23 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // xu ly mo rong/thu gon textarea
     const form = document.getElementById('config-form');
     if (form) {
         form.addEventListener('click', function(event) {
             const target = event.target;
             if (target.classList.contains('expand-toggle-btn')) {
-                event.preventDefault(); // tranh submit form
+                event.preventDefault(); 
                 const wrapper = target.closest('.textarea-wrapper');
                 if (wrapper) {
                     const textarea = wrapper.querySelector('textarea');
                     wrapper.classList.toggle('expanded');
                     if (wrapper.classList.contains('expanded')) {
                         target.textContent = '-';
-                        // set chieu cao auto de tinh lai scrollHeight
                         textarea.style.height = 'auto'; 
                         textarea.style.height = (textarea.scrollHeight + 5) + 'px';
                     } else {
                         target.textContent = '+';
-                        textarea.style.height = ''; // quay ve css
+                        textarea.style.height = ''; 
                     }
                 }
             }
@@ -321,8 +366,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-// ham js
 function removeRow(button) { button.closest('.dynamic-row').remove(); }
+
+function addShopRole() {
+    const template = document.getElementById('shop-role-template');
+    const clone = template.content.cloneNode(true);
+    document.getElementById('shop-roles-container').appendChild(clone);
+}
 
 function addCategoryRate() { 
     const template = document.getElementById('category-rate-template');
