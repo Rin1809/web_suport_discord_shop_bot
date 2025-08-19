@@ -15,6 +15,7 @@
             <button class="config-nav-button" data-target="#customrole" type="button">Role Tùy Chỉnh</button>
             <button class="config-nav-button" data-target="#qna" type="button">Q&A</button>
             <a href="{{ url_for('members', guild_id=guild_id) }}" class="config-nav-button" type="button">Quản lý Thành viên</a>
+            <a href="{{ url_for('history', guild_id=guild_id) }}" class="config-nav-button" type="button">Lịch sử Giao dịch</a>
         </div>
         <form method="POST" id="config-form">
 

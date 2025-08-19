@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+
+{% block title %}Lịch sử Giao dịch - {{ guild.name }}{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('edit_config', guild_id=guild.id) }}" class="poetic-button poetic-button-secondary" style="margin-bottom: 2rem;">&larr; Quay lại Cấu hình</a>
+
+<h1 class="main-title poetic-header">Lịch sử Giao dịch: {{ guild.name }}</h1>
+
+<div class="poetic-card">
+    <div class="table-responsive">
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Thành viên</th>
+                    <th>Loại</th>
+                    <th>Chi tiết</th>
+                    <th>Thay đổi</th>
+                    <th>Số dư mới</th>
+                    <th>Thời gian</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in transactions %}
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <img src="{{ t.user_info.avatar_url }}" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%;">
+                            <span>{{ t.user_info.name }}</span>
+                        </div>
+                    </td>
+                    <td>{{ t.transaction_type }}</td>
+                    <td>{{ t.item_name or 'N/A' }}</td>
+                    <td style="color: {% if t.amount_changed > 0 %}var(--success-color){% else %}var(--danger-color){% endif %};">
+                        {% if t.amount_changed > 0 %}+{% endif %}{{ "{:,}".format(t.amount_changed) }}
+                    </td>
+                    <td>{{ "{:,}".format(t.new_balance) }}</td>
+                    <td><small>{{ t.timestamp.strftime('%Y-%m-%d %H:%M') }}</small></td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 2rem;">Chưa có giao dịch nào.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if total_pages > 1 %}
+    <nav class="pagination">
+        {% if page > 1 %}
+            <a href="{{ url_for('history', guild_id=guild.id, page=page-1) }}" class="poetic-button poetic-button-secondary">&laquo; Trang trước</a>
+        {% endif %}
+        <span style="align-self: center;">Trang {{ page }} / {{ total_pages }}</span>
+        {% if page < total_pages %}
+            <a href="{{ url_for('history', guild_id=guild.id, page=page+1) }}" class="poetic-button poetic-button-secondary">Trang sau &raquo;</a>
+        {% endif %}
+    </nav>
+    {% endif %}
+
+</div>
+
+<style>
+.table-responsive { overflow-x: auto; }
+.history-table { width: 100%; border-collapse: collapse; min-width: 800px; }
+.history-table th, .history-table td { padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid rgba(var(--border-color-rgb), 0.2); white-space: nowrap; }
+.history-table th { font-weight: 500; color: var(--highlight-color-poetic); }
+.history-table tbody tr:hover { background-color: rgba(var(--highlight-color-poetic-rgb), 0.05); }
+.pagination { margin-top: 2rem; display: flex; justify-content: center; gap: 1rem; }
+</style>
+
+{% endblock %}

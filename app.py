@@ -2,6 +2,7 @@ import os
 import json
 import psycopg2
 import requests
+import math
 from psycopg2.extras import Json, RealDictCursor
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, flash
@@ -20,6 +21,9 @@ API_BASE_URL = "https://discord.com/api/v10"
 
 # --- HELPER FUNCTIONS FOR DISCORD API ---
 
+# cache
+_user_cache = {}
+
 def discord_api_request(endpoint, method='GET', payload=None):
     if not BOT_TOKEN:
         return None
@@ -34,6 +38,27 @@ def discord_api_request(endpoint, method='GET', payload=None):
         print(f"Loi goi API Discord toi {endpoint}: {e}")
         return None
 
+def get_user_info(user_id):
+    if user_id in _user_cache:
+        return _user_cache[user_id]
+    
+    user_data = discord_api_request(f"/users/{user_id}")
+    if user_data:
+        avatar_hash = user_data.get('avatar')
+        info = {
+            'id': user_id,
+            'name': user_data.get('global_name') or user_data.get('username', f'Unknown User {user_id}'),
+            'avatar_url': f"https://cdn.discordapp.com/avatars/{user_id}/{avatar_hash}.png" if avatar_hash else "https://cdn.discordapp.com/embed/avatars/0.png"
+        }
+        _user_cache[user_id] = info
+        return info
+    return {
+        'id': user_id,
+        'name': f'Unknown User {user_id}',
+        'avatar_url': "https://cdn.discordapp.com/embed/avatars/0.png"
+    }
+
+
 # --- END HELPER FUNCTIONS ---
 
 
@@ -41,7 +66,6 @@ def get_db_connection():
     # ham ket noi db
     try:
         conn = psycopg2.connect(DATABASE_URL)
-        conn.cursor_factory = RealDictCursor # tra ve dict
         return conn
     except Exception as e:
         print(f"Loi ket noi database: {e}")
@@ -157,7 +181,7 @@ def index():
         flash("Không thể kết nối đến cơ sở dữ liệu!", "danger")
         return render_template('index.html', guilds=[])
         
-    with conn.cursor() as cur:
+    with conn.cursor(cursor_factory=RealDictCursor) as cur:
         cur.execute("SELECT guild_id FROM guild_configs ORDER BY guild_id;")
         guilds_data = cur.fetchall()
     conn.close()
@@ -217,7 +241,7 @@ def edit_config(guild_id):
         return redirect(url_for('index'))
 
     # xu ly GET
-    with conn.cursor() as cur:
+    with conn.cursor(cursor_factory=RealDictCursor) as cur:
         cur.execute("SELECT config_data FROM guild_configs WHERE guild_id = %s;", (guild_id,))
         db_result = cur.fetchone()
     conn.close()
@@ -284,7 +308,7 @@ def members(guild_id):
         api_members = []
     
     # lay user tu db
-    with conn.cursor() as cur:
+    with conn.cursor(cursor_factory=RealDictCursor) as cur:
         cur.execute("SELECT user_id, balance FROM users WHERE guild_id = %s", (guild_id,))
         db_users_list = cur.fetchall()
     conn.close()
@@ -338,22 +362,44 @@ def edit_member(guild_id, user_id):
         return redirect(url_for('index'))
 
     if request.method == 'POST':
-        new_balance = request.form.get('balance')
-        # co the them cac field khac
+        new_balance_str = request.form.get('balance')
+        role_name = request.form.get('role_name')
+        role_color = request.form.get('role_color')
+
         try:
-            with conn.cursor() as cur:
-                cur.execute("UPDATE users SET balance = %s WHERE user_id = %s AND guild_id = %s", (int(new_balance), user_id, guild_id))
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("SELECT balance FROM users WHERE user_id = %s AND guild_id = %s", (user_id, guild_id))
+                user_data = cur.fetchone()
+                old_balance = user_data['balance'] if user_data else 0
+                
+                new_balance = int(new_balance_str)
+                amount_changed = new_balance - old_balance
+                
+                cur.execute("UPDATE users SET balance = %s WHERE user_id = %s AND guild_id = %s", (new_balance, user_id, guild_id))
+
+                # log
+                if amount_changed != 0:
+                     cur.execute("""
+                        INSERT INTO transactions (guild_id, user_id, transaction_type, item_name, amount_changed, new_balance)
+                        VALUES (%s, %s, %s, %s, %s, %s)
+                        """, (guild_id, user_id, 'admin_edit', 'Manual Edit', amount_changed, new_balance))
+
+                # update custom role
+                if role_name is not None and role_color is not None:
+                    cur.execute("UPDATE custom_roles SET role_name = %s, role_color = %s WHERE user_id = %s AND guild_id = %s",
+                                (role_name, role_color, user_id, guild_id))
+
             conn.commit()
             flash("Cập nhật thông tin thành viên thành công!", "success")
         except Exception as e:
             flash(f"Lỗi khi cập nhật: {e}", "danger")
+            conn.rollback()
         finally:
             conn.close()
         return redirect(url_for('members', guild_id=guild_id))
 
     # GET request
-    # lay db profile
-    with conn.cursor() as cur:
+    with conn.cursor(cursor_factory=RealDictCursor) as cur:
         query = """
         SELECT u.*, cr.role_id, cr.role_name, cr.role_color
         FROM users u
@@ -362,6 +408,11 @@ def edit_member(guild_id, user_id):
         """
         cur.execute(query, (user_id, guild_id))
         user_db_data = cur.fetchone()
+        
+        # lay ls gd
+        cur.execute("SELECT * FROM transactions WHERE guild_id = %s AND user_id = %s ORDER BY timestamp DESC LIMIT 10", (guild_id, user_id))
+        transactions = cur.fetchall()
+
     conn.close()
 
     if not user_db_data:
@@ -370,23 +421,58 @@ def edit_member(guild_id, user_id):
             with c.cursor() as cur:
                 cur.execute("INSERT INTO users (user_id, guild_id, balance) VALUES (%s, %s, 0) ON CONFLICT DO NOTHING", (user_id, guild_id))
                 c.commit()
-        # thu lai
         return edit_member(guild_id, user_id)
 
-    # lay discord profile
-    user_api_data = discord_api_request(f"/users/{user_id}")
+    user_api_data = get_user_info(user_id)
     if not user_api_data:
         flash("Không thể lấy thông tin người dùng từ Discord.", "danger")
         return redirect(url_for('members', guild_id=guild_id))
         
-    avatar_hash = user_api_data.get('avatar')
-    user_api_data['avatar_url'] = f"https://cdn.discordapp.com/avatars/{user_id}/{avatar_hash}.png" if avatar_hash else "https://cdn.discordapp.com/embed/avatars/0.png"
-    user_api_data['display_name'] = user_api_data.get('global_name') or user_api_data.get('username')
+    user_api_data['display_name'] = user_api_data.get('name')
 
-    # gop data
     full_user_data = {**user_db_data, **user_api_data}
 
-    return render_template('edit_member.html', guild=guild_details, user=full_user_data)
+    return render_template('edit_member.html', guild=guild_details, user=full_user_data, transactions=transactions)
+
+@app.route('/edit/<int:guild_id>/history')
+def history(guild_id):
+    conn = get_db_connection()
+    if not conn:
+        flash("Không thể kết nối database!", "danger")
+        return redirect(url_for('edit_config', guild_id=guild_id))
+
+    guild_details = discord_api_request(f"/guilds/{guild_id}")
+    if not guild_details:
+        flash("Không thể lấy thông tin server", "danger")
+        return redirect(url_for('index'))
+    
+    page = request.args.get('page', 1, type=int)
+    per_page = 20
+    offset = (page - 1) * per_page
+    
+    with conn.cursor(cursor_factory=RealDictCursor) as cur:
+        cur.execute("SELECT COUNT(*) as total FROM transactions WHERE guild_id = %s", (guild_id,))
+        total_transactions = cur.fetchone()['total']
+        
+        cur.execute("SELECT * FROM transactions WHERE guild_id = %s ORDER BY timestamp DESC LIMIT %s OFFSET %s", (guild_id, per_page, offset))
+        transactions_raw = cur.fetchall()
+    conn.close()
+    
+    transactions = []
+    for t in transactions_raw:
+        user_info = get_user_info(t['user_id'])
+        t['user_info'] = user_info
+        transactions.append(t)
+
+    total_pages = math.ceil(total_transactions / per_page)
+
+    return render_template(
+        'history.html', 
+        guild=guild_details, 
+        transactions=transactions,
+        page=page,
+        total_pages=total_pages
+    )
 
 
 if __name__ == '__main__':
