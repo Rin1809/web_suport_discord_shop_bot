@@ -72,16 +72,18 @@ def get_db_connection():
 def parse_form_data(form):
     config = defaultdict(dict)
     
+    # cac key don gian
     simple_keys = [
         'shop_channel_id', 'leaderboard_thread_id',
         'EMBED_COLOR', 'SELL_REFUND_PERCENTAGE',
         'SHOP_EMBED_THUMBNAIL_URL', 'SHOP_EMBED_IMAGE_URL',
-        'EARNING_RATES_IMAGE_URL'
+        'EARNING_RATES_IMAGE_URL', 'SHOP_DISPLAY_STYLE' # them key moi
     ]
     for key in simple_keys:
         if form.get(key):
             config[key] = form.get(key)
     
+    # cac key phuc tap
     for key, value in form.items():
         if '[' in key and ']' in key:
             parts = key.replace(']', '').split('[')
@@ -92,6 +94,7 @@ def parse_form_data(form):
                 d = d[part]
             d[parts[-1]] = value if value else None
 
+    # chuyen doi kieu
     if config.get('shop_channel_id'):
         config['shop_channel_id'] = int(config['shop_channel_id'])
     else:
@@ -126,6 +129,7 @@ def parse_form_data(form):
         if booster_conf.get('PER_BOOST_ADDITION'):
             booster_conf['PER_BOOST_ADDITION'] = float(booster_conf['PER_BOOST_ADDITION'])
 
+    # ty le category
     cat_ids = request.form.getlist('category_rate_id[]')
     cat_msgs = request.form.getlist('category_rate_messages[]')
     cat_reacts = request.form.getlist('category_rate_reactions[]')
@@ -137,7 +141,8 @@ def parse_form_data(form):
                 "MESSAGES_PER_COIN": int(cat_msgs[i]) if cat_msgs[i] else None,
                 "REACTIONS_PER_COIN": int(cat_reacts[i]) if cat_reacts[i] else None
             }
-
+    
+    # ty le channel
     chan_ids = request.form.getlist('channel_rate_id[]')
     chan_msgs = request.form.getlist('channel_rate_messages[]')
     chan_reacts = request.form.getlist('channel_rate_reactions[]')
@@ -150,6 +155,7 @@ def parse_form_data(form):
                 "REACTIONS_PER_COIN": int(chan_reacts[i]) if chan_reacts[i] else None
             }
 
+    # q&a
     qna_labels = request.form.getlist('qna_label[]')
     qna_descriptions = request.form.getlist('qna_description[]')
     qna_emojis = request.form.getlist('qna_emoji[]')
