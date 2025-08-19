@@ -72,12 +72,12 @@ def get_db_connection():
 def parse_form_data(form):
     config = defaultdict(dict)
     
-    # cac key don gian
+    # cac key don
     simple_keys = [
         'shop_channel_id', 'leaderboard_thread_id',
         'EMBED_COLOR', 'SELL_REFUND_PERCENTAGE',
         'SHOP_EMBED_THUMBNAIL_URL', 'SHOP_EMBED_IMAGE_URL',
-        'EARNING_RATES_IMAGE_URL', 'SHOP_DISPLAY_STYLE' # them key moi
+        'EARNING_RATES_IMAGE_URL', 'SHOP_DISPLAY_STYLE'
     ]
     for key in simple_keys:
         if form.get(key):
