@@ -17,6 +17,11 @@
                     <label for="balance" class="form-label-poetic">Số dư Coin</label>
                     <input type="number" class="form-control-poetic" id="balance" name="balance" value="{{ user.balance }}">
                 </div>
+                <div class="form-group-poetic">
+                    <label for="fake_boosts" class="form-label-poetic">Số lượng Boost "ảo"</label>
+                    <input type="number" class="form-control-poetic" id="fake_boosts" name="fake_boosts" value="{{ user.fake_boosts or 0 }}" min="0">
+                    <div class="form-text-poetic">Đặt > 0 để ghi đè số boost thật khi tính hệ số nhân.</div>
+                </div>
             </div>
 
             {% if user.role_id %}

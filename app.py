@@ -432,6 +432,7 @@ def edit_member(guild_id, user_id):
 
     if request.method == 'POST':
         new_balance_str = request.form.get('balance')
+        fake_boosts_str = request.form.get('fake_boosts', '0')
         role_name = request.form.get('role_name')
         role_color = request.form.get('role_color')
 
@@ -442,9 +443,10 @@ def edit_member(guild_id, user_id):
                 old_balance = user_data['balance'] if user_data else 0
                 
                 new_balance = int(new_balance_str)
+                new_fake_boosts = int(fake_boosts_str) if fake_boosts_str.isdigit() else 0
                 amount_changed = new_balance - old_balance
                 
-                cur.execute("UPDATE users SET balance = %s WHERE user_id = %s AND guild_id = %s", (new_balance, user_id, guild_id))
+                cur.execute("UPDATE users SET balance = %s, fake_boosts = %s WHERE user_id = %s AND guild_id = %s", (new_balance, new_fake_boosts, user_id, guild_id))
 
                 if amount_changed != 0:
                      cur.execute("""
