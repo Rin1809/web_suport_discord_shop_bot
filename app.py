@@ -246,10 +246,22 @@ def edit_config(guild_id):
     # Lay thong tin tu discord api
     guild_details = discord_api_request(f"/guilds/{guild_id}")
     all_channels = discord_api_request(f"/guilds/{guild_id}/channels")
-    text_channels = [ch for ch in all_channels if ch['type'] == 0] if all_channels else []
     
-    # tao map id -> ten
-    all_channels_map = {str(ch['id']): ch['name'] for ch in all_channels} if all_channels else {}
+    text_channels = []
+    category_channels = []
+    rateable_channels = []
+    all_channels_map = {}
+    
+    if all_channels:
+        # lay kenh text cho dropdown shop
+        text_channels = [ch for ch in all_channels if ch['type'] == 0]
+        # lay category cho dropdown rate
+        category_channels = [ch for ch in all_channels if ch['type'] == 4]
+        # lay kenh co the chat de set rate
+        rateable_channels = [ch for ch in all_channels if ch['type'] in [0, 5, 15]] # text, news, forum
+        # tao map id -> ten
+        all_channels_map = {str(ch['id']): ch['name'] for ch in all_channels}
+
 
     return render_template(
         'edit_config.html', 
@@ -257,7 +269,9 @@ def edit_config(guild_id):
         config=config, 
         guild=guild_details,
         text_channels=text_channels,
-        all_channels_map=all_channels_map
+        all_channels_map=all_channels_map,
+        category_channels=category_channels, # pass vao template
+        rateable_channels=rateable_channels   # pass vao template
     )
 
 if __name__ == '__main__':

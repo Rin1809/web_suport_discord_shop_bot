@@ -79,7 +79,15 @@
                         {% for cat_id, rates in config.CURRENCY_RATES.categories.items() %}
                         <div class="dynamic-row rates-row">
                             <div class="dynamic-row-content">
-                                <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">ID Danh mục</label><input type="number" class="form-control-poetic" name="category_rate_id[]" value="{{ cat_id }}"><small class="form-text-poetic">{{ all_channels_map.get(cat_id, 'Không tìm thấy tên') }}</small></div>
+                                <div class="form-group-poetic" style="margin:0;">
+                                    <label class="form-label-poetic">Danh mục</label>
+                                    <select class="form-select-poetic" name="category_rate_id[]">
+                                        <option value="">-- Chọn danh mục --</option>
+                                        {% for category in category_channels %}
+                                        <option value="{{ category.id }}" {% if category.id|string == cat_id %}selected{% endif %}>{{ category.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                                 <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Tin nhắn/coin</label><input type="number" class="form-control-poetic" name="category_rate_messages[]" value="{{ rates.MESSAGES_PER_COIN or '' }}"></div>
                                 <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Reaction/coin</label><input type="number" class="form-control-poetic" name="category_rate_reactions[]" value="{{ rates.REACTIONS_PER_COIN or '' }}"></div>
                             </div>
@@ -94,7 +102,15 @@
                          {% for chan_id, rates in config.CURRENCY_RATES.channels.items() %}
                         <div class="dynamic-row rates-row">
                              <div class="dynamic-row-content">
-                                <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">ID Kênh</label><input type="number" class="form-control-poetic" name="channel_rate_id[]" value="{{ chan_id }}"><small class="form-text-poetic">#{{ all_channels_map.get(chan_id, 'Không tìm thấy tên') }}</small></div>
+                                <div class="form-group-poetic" style="margin:0;">
+                                    <label class="form-label-poetic">Kênh</label>
+                                    <select class="form-select-poetic" name="channel_rate_id[]">
+                                        <option value="">-- Chọn kênh --</option>
+                                        {% for channel in rateable_channels %}
+                                        <option value="{{ channel.id }}" {% if channel.id|string == chan_id %}selected{% endif %}>#{{ channel.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                                 <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Tin nhắn/coin</label><input type="number" class="form-control-poetic" name="channel_rate_messages[]" value="{{ rates.MESSAGES_PER_COIN or '' }}"></div>
                                 <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Reaction/coin</label><input type="number" class="form-control-poetic" name="channel_rate_reactions[]" value="{{ rates.REACTIONS_PER_COIN or '' }}"></div>
                             </div>
@@ -143,6 +159,45 @@
     </div>
 </div>
 
+<!-- templates cho js -->
+<template id="category-rate-template">
+    <div class="dynamic-row rates-row">
+        <div class="dynamic-row-content">
+            <div class="form-group-poetic" style="margin:0;">
+                <label class="form-label-poetic">Danh mục</label>
+                <select class="form-select-poetic" name="category_rate_id[]">
+                    <option value="">-- Chọn danh mục --</option>
+                    {% for category in category_channels %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Tin nhắn/coin</label><input type="number" class="form-control-poetic" name="category_rate_messages[]"></div>
+            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Reaction/coin</label><input type="number" class="form-control-poetic" name="category_rate_reactions[]"></div>
+        </div>
+        <div class="dynamic-row-actions"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div>
+    </div>
+</template>
+
+<template id="channel-rate-template">
+    <div class="dynamic-row rates-row">
+        <div class="dynamic-row-content">
+            <div class="form-group-poetic" style="margin:0;">
+                <label class="form-label-poetic">Kênh</label>
+                <select class="form-select-poetic" name="channel_rate_id[]">
+                    <option value="">-- Chọn kênh --</option>
+                    {% for channel in rateable_channels %}
+                    <option value="{{ channel.id }}">#{{ channel.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Tin nhắn/coin</label><input type="number" class="form-control-poetic" name="channel_rate_messages[]"></div>
+            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Reaction/coin</label><input type="number" class="form-control-poetic" name="channel_rate_reactions[]"></div>
+        </div>
+        <div class="dynamic-row-actions"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div>
+    </div>
+</template>
+
 <script>
 // xu ly tab nav
 document.addEventListener('DOMContentLoaded', function () {
@@ -164,29 +219,15 @@ document.addEventListener('DOMContentLoaded', function () {
 function removeRow(button) { button.closest('.dynamic-row').remove(); }
 
 function addCategoryRate() { 
-    const html = `
-    <div class="dynamic-row rates-row">
-        <div class="dynamic-row-content">
-            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">ID Danh mục</label><input type="number" class="form-control-poetic" name="category_rate_id[]"></div>
-            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Tin nhắn/coin</label><input type="number" class="form-control-poetic" name="category_rate_messages[]"></div>
-            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Reaction/coin</label><input type="number" class="form-control-poetic" name="category_rate_reactions[]"></div>
-        </div>
-        <div class="dynamic-row-actions"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div>
-    </div>`;
-    document.getElementById('category-rates-container').insertAdjacentHTML('beforeend', html);
+    const template = document.getElementById('category-rate-template');
+    const clone = template.content.cloneNode(true);
+    document.getElementById('category-rates-container').appendChild(clone);
 }
 
 function addChannelRate() { 
-    const html = `
-    <div class="dynamic-row rates-row">
-        <div class="dynamic-row-content">
-            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">ID Kênh</label><input type="number" class="form-control-poetic" name="channel_rate_id[]"></div>
-            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Tin nhắn/coin</label><input type="number" class="form-control-poetic" name="channel_rate_messages[]"></div>
-            <div class="form-group-poetic" style="margin:0;"><label class="form-label-poetic">Reaction/coin</label><input type="number" class="form-control-poetic" name="channel_rate_reactions[]"></div>
-        </div>
-        <div class="dynamic-row-actions"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div>
-    </div>`;
-    document.getElementById('channel-rates-container').insertAdjacentHTML('beforeend', html);
+    const template = document.getElementById('channel-rate-template');
+    const clone = template.content.cloneNode(true);
+    document.getElementById('channel-rates-container').appendChild(clone);
 }
 
 function addQnA() { 
