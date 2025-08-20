@@ -4,6 +4,7 @@ import psycopg2
 import requests
 import math
 import re
+import time
 from psycopg2.extras import Json, RealDictCursor
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, flash
@@ -18,7 +19,10 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 API_BASE_URL = "https://discord.com/api/v10"
 
+# cache
 _user_cache = {}
+_guild_members_cache = {}
+CACHE_DURATION_SECONDS = 300 # 5 phut
 
 def discord_api_request(endpoint, method='GET', payload=None):
     if not BOT_TOKEN:
@@ -41,22 +45,23 @@ def discord_api_request(endpoint, method='GET', payload=None):
         return None
 
 def get_user_info(user_id):
-    if user_id in _user_cache:
-        return _user_cache[user_id]
+    user_id_str = str(user_id)
+    if user_id_str in _user_cache:
+        return _user_cache[user_id_str]
     
-    user_data = discord_api_request(f"/users/{user_id}")
+    user_data = discord_api_request(f"/users/{user_id_str}")
     if user_data:
         avatar_hash = user_data.get('avatar')
         info = {
-            'id': user_id,
-            'name': user_data.get('global_name') or user_data.get('username', f'Unknown User {user_id}'),
-            'avatar_url': f"https://cdn.discordapp.com/avatars/{user_id}/{avatar_hash}.png" if avatar_hash else "https://cdn.discordapp.com/embed/avatars/0.png"
+            'id': user_id_str,
+            'name': user_data.get('global_name') or user_data.get('username', f'Unknown User {user_id_str}'),
+            'avatar_url': f"https://cdn.discordapp.com/avatars/{user_id_str}/{avatar_hash}.png" if avatar_hash else "https://cdn.discordapp.com/embed/avatars/0.png"
         }
-        _user_cache[user_id] = info
+        _user_cache[user_id_str] = info
         return info
     return {
-        'id': user_id,
-        'name': f'Unknown User {user_id}',
+        'id': user_id_str,
+        'name': f'Unknown User {user_id_str}',
         'avatar_url': "https://cdn.discordapp.com/embed/avatars/0.png"
     }
 
@@ -365,9 +370,18 @@ def members(guild_id):
         flash(f"Không thể lấy thông tin server {guild_id}", "danger")
         return redirect(url_for('index'))
     
-    api_members = discord_api_request(f"/guilds/{guild_id}/members?limit=1000")
-    if api_members is None:
-        api_members = []
+    # su dung cache
+    guild_id_str = str(guild_id)
+    now = time.time()
+    api_members = []
+    
+    if guild_id_str in _guild_members_cache and (now - _guild_members_cache[guild_id_str]['timestamp'] < CACHE_DURATION_SECONDS):
+        api_members = _guild_members_cache[guild_id_str]['data']
+    else:
+        fetched_members = discord_api_request(f"/guilds/{guild_id}/members?limit=1000")
+        if fetched_members is not None:
+            api_members = fetched_members
+            _guild_members_cache[guild_id_str] = {'data': api_members, 'timestamp': now}
     
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
         cur.execute("SELECT user_id, balance FROM users WHERE guild_id = %s", (guild_id,))
@@ -420,7 +434,7 @@ def members(guild_id):
         search_query=search_query,
         page=page,
         total_pages=total_pages,
-        guild_id=guild_id # fix: them guild_id
+        guild_id=guild_id
     )
 
 @app.route('/edit/<int:guild_id>/member/<int:user_id>', methods=['GET', 'POST'])
@@ -530,10 +544,29 @@ def history(guild_id):
         transactions_raw = cur.fetchall()
     conn.close()
     
+    # lay ds member 1 lan duy nhat
+    members_map = {}
+    api_members = discord_api_request(f"/guilds/{guild_id}/members?limit=1000")
+    if api_members:
+        for member_data in api_members:
+            user = member_data.get('user', {})
+            user_id = user.get('id')
+            if user_id:
+                avatar_hash = user.get('avatar')
+                members_map[int(user_id)] = {
+                    'name': user.get('global_name') or user.get('username'),
+                    'avatar_url': f"https://cdn.discordapp.com/avatars/{user_id}/{avatar_hash}.png" if avatar_hash else "https://cdn.discordapp.com/embed/avatars/0.png"
+                }
+
     transactions = []
     for t in transactions_raw:
-        user_info = get_user_info(t['user_id'])
-        t['user_info'] = user_info
+        user_id = t['user_id']
+        # tra cuu map truoc
+        if user_id in members_map:
+            t['user_info'] = members_map[user_id]
+        else:
+            # fallback cho user da roi sv
+            t['user_info'] = get_user_info(user_id)
         transactions.append(t)
 
     total_pages = math.ceil(total_transactions / per_page)
@@ -549,4 +582,4 @@ def history(guild_id):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run('0.0.0.0', debug=True, port=5001)

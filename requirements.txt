@@ -1,0 +1,5 @@
+discord.py
+Flask
+psycopg2-binary
+python-dotenv
+requests
