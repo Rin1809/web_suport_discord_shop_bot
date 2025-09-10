@@ -128,6 +128,14 @@ def parse_form_data(form):
             custom_role_conf['MIN_BOOST_COUNT'] = int(custom_role_conf['MIN_BOOST_COUNT'])
         if custom_role_conf.get('PRICE'):
             custom_role_conf['PRICE'] = int(custom_role_conf['PRICE'])
+        if custom_role_conf.get('DEFAULT_PURCHASE_PRICE'):
+            custom_role_conf['DEFAULT_PURCHASE_PRICE'] = int(custom_role_conf['DEFAULT_PURCHASE_PRICE'])
+
+    if 'REGULAR_USER_ROLE_CREATION' in config:
+        regular_conf = config['REGULAR_USER_ROLE_CREATION']
+        regular_conf['ENABLED'] = regular_conf.get('ENABLED') == 'true'
+        if regular_conf.get('CREATION_PRICE'):
+            regular_conf['CREATION_PRICE'] = int(regular_conf['CREATION_PRICE'])
 
     if config.get('SELL_REFUND_PERCENTAGE'):
         config['SELL_REFUND_PERCENTAGE'] = float(config['SELL_REFUND_PERCENTAGE'])
@@ -284,10 +292,10 @@ def edit_config(guild_id):
                         new_shop_roles_db.append((int(role_id), int(role_prices[i])))
 
                 # cap nhat db
-                cur.execute("DELETE FROM shop_roles WHERE guild_id = %s", (guild_id,))
+                cur.execute("DELETE FROM shop_roles WHERE guild_id = %s AND role_id NOT IN (SELECT role_id FROM custom_roles WHERE guild_id = %s)", (guild_id, guild_id))
                 for role_id, price in new_shop_roles_db:
                     cur.execute(
-                        "INSERT INTO shop_roles (guild_id, role_id, price) VALUES (%s, %s, %s)",
+                        "INSERT INTO shop_roles (guild_id, role_id, price) VALUES (%s, %s, %s) ON CONFLICT(role_id) DO UPDATE SET price = EXCLUDED.price",
                         (guild_id, role_id, price)
                     )
 
@@ -306,7 +314,7 @@ def edit_config(guild_id):
         cur.execute("SELECT config_data FROM guild_configs WHERE guild_id = %s;", (guild_id,))
         db_result = cur.fetchone()
 
-        cur.execute("SELECT role_id, price FROM shop_roles WHERE guild_id = %s ORDER BY price ASC", (guild_id,))
+        cur.execute("SELECT role_id, price FROM shop_roles WHERE guild_id = %s AND role_id NOT IN (SELECT role_id FROM custom_roles WHERE guild_id = %s) ORDER BY price ASC", (guild_id, guild_id))
         shop_roles_db = cur.fetchall()
 
     conn.close()
@@ -321,7 +329,8 @@ def edit_config(guild_id):
         "MESSAGES": {}, "FOOTER_MESSAGES": {}, 
         "CURRENCY_RATES": {"default": {}, "categories": {}, "channels": {}},
         "CUSTOM_ROLE_CONFIG": {}, "QNA_DATA": [],
-        "BOOSTER_MULTIPLIER_CONFIG": {}
+        "BOOSTER_MULTIPLIER_CONFIG": {},
+        "REGULAR_USER_ROLE_CREATION": {}
     }
     for key, default_value in keys_to_ensure.items():
         if key not in config:

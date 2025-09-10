@@ -96,8 +96,8 @@
                 </div>
                 
                 <div class="tab-pane" id="shoproles">
-                    <h5 class="form-section-title">Các Role đang bán</h5>
-                     <div class="form-text-poetic" style="margin-bottom: 1.5rem;">Nhập Tên, Giá và Màu. Nếu Role chưa tồn tại, hệ thống sẽ tự động tạo mới (yêu cầu bot có quyền 'Manage Roles').</div>
+                    <h5 class="form-section-title">Các Role đang bán (Do Admin tạo)</h5>
+                     <div class="form-text-poetic" style="margin-bottom: 1.5rem;">Các role được tạo bởi thành viên sẽ tự động xuất hiện trong shop. Khu vực này dành cho các role do Admin tạo sẵn.</div>
                     <div id="shop-roles-container">
                         {% for role in shop_roles %}
                         <div class="dynamic-row">
@@ -249,8 +249,32 @@
                      <h5 class="form-section-title">Cài đặt Role Tùy Chỉnh (cho Booster)</h5>
                      <div class="form-grid">
                          <div class="form-group-poetic"><label class="form-label-poetic">Số lần boost tối thiểu</label><input type="number" class="form-control-poetic" name="CUSTOM_ROLE_CONFIG[MIN_BOOST_COUNT]" value="{{ config.CUSTOM_ROLE_CONFIG.get('MIN_BOOST_COUNT', 2) }}"></div>
-                         <div class="form-group-poetic"><label class="form-label-poetic">Giá (coin)</label><input type="number" class="form-control-poetic" name="CUSTOM_ROLE_CONFIG[PRICE]" value="{{ config.CUSTOM_ROLE_CONFIG.get('PRICE', 1000) }}"></div>
+                         <div class="form-group-poetic"><label class="form-label-poetic">Giá tạo role (coin)</label><input type="number" class="form-control-poetic" name="CUSTOM_ROLE_CONFIG[PRICE]" value="{{ config.CUSTOM_ROLE_CONFIG.get('PRICE', 1000) }}"></div>
                     </div>
+                    <hr>
+                    <h5 class="form-section-title">Cài đặt Tạo Role (Thành viên thường)</h5>
+                    <div class="form-grid">
+                        <div class="form-group-poetic">
+                            <label class="form-label-poetic">Bật/Tắt tính năng</label>
+                            <select class="form-select-poetic" name="REGULAR_USER_ROLE_CREATION[ENABLED]">
+                                <option value="true" {% if config.REGULAR_USER_ROLE_CREATION.get('ENABLED') %}selected{% endif %}>Bật</option>
+                                <option value="false" {% if not config.REGULAR_USER_ROLE_CREATION.get('ENABLED') %}selected{% endif %}>Tắt</option>
+                            </select>
+                        </div>
+                        <div class="form-group-poetic">
+                            <label class="form-label-poetic">Giá tạo role (coin)</label>
+                            <input type="number" class="form-control-poetic" name="REGULAR_USER_ROLE_CREATION[CREATION_PRICE]" value="{{ config.REGULAR_USER_ROLE_CREATION.get('CREATION_PRICE', 2000) }}">
+                        </div>
+                    </div>
+                    <hr>
+                    <h5 class="form-section-title">Cài đặt Shop cho Role Tùy Chỉnh</h5>
+                     <div class="form-grid">
+                        <div class="form-group-poetic">
+                            <label class="form-label-poetic">Giá MUA mặc định (coin)</label>
+                            <input type="number" class="form-control-poetic" name="CUSTOM_ROLE_CONFIG[DEFAULT_PURCHASE_PRICE]" value="{{ config.CUSTOM_ROLE_CONFIG.get('DEFAULT_PURCHASE_PRICE', 500) }}">
+                            <div class="form-text-poetic">Giá bán trong shop cho một role sau khi nó được người khác tạo ra.</div>
+                        </div>
+                     </div>
                 </div>
 
                 <div class="tab-pane" id="qna">
