@@ -79,7 +79,7 @@ def parse_form_data(form):
     
     # cac key don
     simple_keys = [
-        'shop_channel_id', 'leaderboard_thread_id',
+        'shop_channel_id', 'leaderboard_thread_id', 'ADMIN_LOG_CHANNEL_ID',
         'EMBED_COLOR', 'SELL_REFUND_PERCENTAGE',
         'SHOP_EMBED_THUMBNAIL_URL', 'SHOP_EMBED_IMAGE_URL',
         'EARNING_RATES_IMAGE_URL', 'SHOP_DISPLAY_STYLE'
@@ -104,6 +104,12 @@ def parse_form_data(form):
         config['shop_channel_id'] = int(config['shop_channel_id'])
     else:
          config['shop_channel_id'] = None
+
+    if config.get('ADMIN_LOG_CHANNEL_ID'):
+        config['ADMIN_LOG_CHANNEL_ID'] = int(config['ADMIN_LOG_CHANNEL_ID'])
+    else:
+        config['ADMIN_LOG_CHANNEL_ID'] = None
+
     if config.get('leaderboard_thread_id'):
         config['leaderboard_thread_id'] = int(config['leaderboard_thread_id'])
     else:
@@ -489,7 +495,7 @@ def edit_member(guild_id, user_id):
     # GET
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
         query = """
-        SELECT u.*, cr.role_id, cr.role_name, cr.role_color
+        SELECT u.*, cr.role_id, cr.role_name, cr.role_color, cr.role_style, cr.gradient_color_1, cr.gradient_color_2
         FROM users u
         LEFT JOIN custom_roles cr ON u.user_id = cr.user_id AND u.guild_id = cr.guild_id
         WHERE u.user_id = %s AND u.guild_id = %s;

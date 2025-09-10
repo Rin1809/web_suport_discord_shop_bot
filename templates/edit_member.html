@@ -41,10 +41,32 @@
                     <input type="text" class="form-control-poetic" id="role_name" name="role_name" value="{{ user.role_name }}">
                 </div>
                  <div class="form-group-poetic">
-                    <label for="role_color" class="form-label-poetic">Màu Role (HEX)</label>
+                    <label for="role_color" class="form-label-poetic">Màu Role chính (HEX)</label>
                     <input type="text" class="form-control-poetic" id="role_color" name="role_color" value="{{ user.role_color }}">
                 </div>
             </div>
+
+            {% if user.role_style %}
+            <h5 class="form-section-title" style="margin-top: 2rem;">Yêu cầu Style</h5>
+             <div class="form-grid">
+                <div class="form-group-poetic">
+                    <label class="form-label-poetic">Kiểu Style</label>
+                    <input type="text" class="form-control-poetic" value="{{ user.role_style }}" disabled>
+                </div>
+                {% if user.role_style == 'Gradient' %}
+                <div class="form-group-poetic">
+                    <label class="form-label-poetic">Màu 1</label>
+                    <input type="text" class="form-control-poetic" value="{{ user.gradient_color_1 }}" disabled>
+                </div>
+                <div class="form-group-poetic">
+                    <label class="form-label-poetic">Màu 2</label>
+                    <input type="text" class="form-control-poetic" value="{{ user.gradient_color_2 }}" disabled>
+                </div>
+                {% endif %}
+            </div>
+            <div class="form-text-poetic">Admin vui lòng chỉnh sửa role thủ công dựa theo thông tin này.</div>
+            {% endif %}
+
             {% endif %}
             
             <div class="form-actions">

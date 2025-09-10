@@ -37,6 +37,18 @@
                             <div class="form-text-poetic">Kênh bot sẽ gửi bảng điều khiển shop.</div>
                         </div>
                         <div class="form-group-poetic">
+                            <label for="admin_log_channel_id" class="form-label-poetic">Kênh Log cho Admin</label>
+                            <select class="form-select-poetic" id="admin_log_channel_id" name="ADMIN_LOG_CHANNEL_ID">
+                                <option value="">-- Không gửi --</option>
+                                {% for channel in text_channels %}
+                                    <option value="{{ channel.id }}" {% if channel.id|string == config.get('ADMIN_LOG_CHANNEL_ID')|string %}selected{% endif %}>
+                                        #{{ channel.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text-poetic">Kênh để bot gửi yêu cầu set role style cho admin.</div>
+                        </div>
+                        <div class="form-group-poetic">
                             <label for="leaderboard_thread_id" class="form-label-poetic">ID Thread Bảng Xếp Hạng</label>
                             <input type="number" class="form-control-poetic" id="leaderboard_thread_id" name="leaderboard_thread_id" value="{{ config.leaderboard_thread_id or '' }}">
                             <div class="form-text-poetic">ID của thread BXH (thường được bot tự điền).</div>
