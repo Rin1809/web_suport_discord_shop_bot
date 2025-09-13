@@ -124,14 +124,16 @@
                 </div>
                 
                 <div class="tab-pane" id="shoproles">
-                    <h5 class="form-section-title">Các Role đang bán (Do Admin tạo)</h5>
-                     <div class="form-text-poetic" style="margin-bottom: 1.5rem;">Các role được tạo bởi thành viên sẽ tự động xuất hiện trong shop. Khu vực này dành cho các role do Admin tạo sẵn.</div>
+                    <h5 class="form-section-title">Quản lý tất cả Role trong Shop</h5>
+                     <div class="form-text-poetic" style="margin-bottom: 1.5rem;">Khu vực này hiển thị tất cả role đang có trong shop, bao gồm cả role do Admin tạo và do thành viên tạo.</div>
                     <div id="shop-roles-container">
                         {% for role in shop_roles %}
                         <div class="dynamic-row">
                             <div class="dynamic-row-content" style="grid-template-columns: 2fr 1fr 1fr;">
                                 <div class="form-group-poetic" style="margin:0;">
                                     <label class="form-label-poetic">Tên Role</label>
+                                    <input type="hidden" name="shop_role_id[]" value="{{ role.id }}">
+                                    <input type="hidden" name="shop_role_creator_id[]" value="{{ role.creator_id or '' }}">
                                     <input type="text" class="form-control-poetic" name="shop_role_name[]" value="{{ role.name }}" placeholder="Ví dụ: VIP Member">
                                 </div>
                                 <div class="form-group-poetic" style="margin:0;">
@@ -142,12 +144,17 @@
                                     <label class="form-label-poetic">Màu (HEX)</label>
                                     <input type="text" class="form-control-poetic" name="shop_role_color[]" value="{{ role.color }}" placeholder="#ffaaaa">
                                 </div>
+                                {% if role.creator_id %}
+                                <div class="form-text-poetic full-width" style="margin-top:0.5rem; color: var(--info-color);">
+                                    Tạo bởi: {{ user_details[role.creator_id|string].name or 'Không rõ' }} (ID: {{ role.creator_id }})
+                                </div>
+                                {% endif %}
                             </div>
                             <div class="dynamic-row-actions"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div>
                         </div>
                         {% endfor %}
                     </div>
-                    <button type="button" class="poetic-button poetic-button-success" style="margin-top: 1rem;" onclick="addShopRole()">Thêm Role</button>
+                    <button type="button" class="poetic-button poetic-button-success" style="margin-top: 1rem;" onclick="addShopRole()">Thêm Role (Admin)</button>
                 </div>
 
                 <div class="tab-pane" id="messages">
@@ -290,8 +297,13 @@
                             </select>
                         </div>
                         <div class="form-group-poetic">
-                            <label class="form-label-poetic">Giá tạo role (coin)</label>
+                            <label class="form-label-poetic">Giá tạo role TỐI THIỂU (coin)</label>
                             <input type="number" class="form-control-poetic" name="REGULAR_USER_ROLE_CREATION[CREATION_PRICE]" value="{{ config.REGULAR_USER_ROLE_CREATION.get('CREATION_PRICE', 2000) }}">
+                        </div>
+                         <div class="form-group-poetic">
+                            <label class="form-label-poetic">Hệ số giá bán trong shop</label>
+                            <input type="number" step="0.1" class="form-control-poetic" name="REGULAR_USER_ROLE_CREATION[SHOP_PRICE_MULTIPLIER]" value="{{ config.REGULAR_USER_ROLE_CREATION.get('SHOP_PRICE_MULTIPLIER', 1.2) }}">
+                            <div class="form-text-poetic">Giá bán = giá tạo x hệ số. VD: 1.2 là cao hơn 20%.</div>
                         </div>
                     </div>
                     <hr>
@@ -346,6 +358,8 @@
         <div class="dynamic-row-content" style="grid-template-columns: 2fr 1fr 1fr;">
             <div class="form-group-poetic" style="margin:0;">
                 <label class="form-label-poetic">Tên Role</label>
+                <input type="hidden" name="shop_role_id[]" value="">
+                <input type="hidden" name="shop_role_creator_id[]" value="">
                 <input type="text" class="form-control-poetic" name="shop_role_name[]" placeholder="Ví dụ: VIP Member">
             </div>
             <div class="form-group-poetic" style="margin:0;">

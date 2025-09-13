@@ -46,6 +46,9 @@ def discord_api_request(endpoint, method='GET', payload=None):
 
 def get_user_info(user_id):
     user_id_str = str(user_id)
+    if not user_id_str or not user_id_str.isdigit():
+        return {'id': user_id_str, 'name': 'N/A', 'avatar_url': "https://cdn.discordapp.com/embed/avatars/0.png"}
+
     if user_id_str in _user_cache:
         return _user_cache[user_id_str]
     
@@ -145,6 +148,8 @@ def parse_form_data(form):
         regular_conf['ENABLED'] = regular_conf.get('ENABLED') == 'true'
         if regular_conf.get('CREATION_PRICE'):
             regular_conf['CREATION_PRICE'] = int(regular_conf['CREATION_PRICE'])
+        if regular_conf.get('SHOP_PRICE_MULTIPLIER'):
+            regular_conf['SHOP_PRICE_MULTIPLIER'] = float(regular_conf['SHOP_PRICE_MULTIPLIER'])
 
     if config.get('SELL_REFUND_PERCENTAGE'):
         config['SELL_REFUND_PERCENTAGE'] = float(config['SELL_REFUND_PERCENTAGE'])
@@ -245,7 +250,6 @@ def edit_config(guild_id):
         flash("Không thể kết nối đến cơ sở dữ liệu!", "danger")
         return redirect(url_for('index'))
 
-    # lay ds role o day de dung cho ca GET va POST
     all_roles_raw = discord_api_request(f"/guilds/{guild_id}/roles")
 
     if request.method == 'POST':
@@ -258,64 +262,61 @@ def edit_config(guild_id):
                     (Json(config_data_json), guild_id)
                 )
                 
-                role_map = {r['name']: r for r in all_roles_raw} if all_roles_raw else {}
+                # lay het role tu form
+                form_role_ids = request.form.getlist('shop_role_id[]')
+                form_role_names = request.form.getlist('shop_role_name[]')
+                form_role_prices = request.form.getlist('shop_role_price[]')
+                form_role_colors = request.form.getlist('shop_role_color[]')
+                form_role_creators = request.form.getlist('shop_role_creator_id[]')
 
-                role_names = request.form.getlist('shop_role_name[]')
-                role_prices = request.form.getlist('shop_role_price[]')
-                role_colors = request.form.getlist('shop_role_color[]')
+                # lay role hien tai trong db
+                cur.execute("SELECT role_id FROM shop_roles WHERE guild_id = %s", (guild_id,))
+                db_role_ids = {str(row['role_id']) for row in cur.fetchall()}
                 
-                new_shop_roles_db = []
-                for i, role_name in enumerate(role_names):
+                # xoa role ko co trong form
+                valid_form_role_ids = {rid for rid in form_role_ids if rid}
+                roles_to_delete = db_role_ids - valid_form_role_ids
+                if roles_to_delete:
+                    # xoa discord role
+                    for del_id in roles_to_delete:
+                        discord_api_request(f"/guilds/{guild_id}/roles/{del_id}", method='DELETE')
+                    # xoa db record
+                    cur.execute("DELETE FROM shop_roles WHERE guild_id = %s AND role_id = ANY(%s)", (guild_id, list(roles_to_delete)))
+
+                # xu ly tung role
+                role_map = {r['name']: r for r in all_roles_raw} if all_roles_raw else {}
+                for i, role_name in enumerate(form_role_names):
                     role_name = role_name.strip()
-                    if not (role_name and role_prices[i]):
+                    if not (role_name and form_role_prices[i]):
                         continue
-
-                    hex_color = (role_colors[i] or '#99aab5').lstrip('#')
-                    try:
-                        color_int = int(hex_color, 16)
-                    except ValueError:
-                        flash(f"Mã màu không hợp lệ cho role '{role_name}'. Dùng màu mặc định.", "warning")
-                        color_int = 0
                     
-                    existing_role = role_map.get(role_name)
-                    role_id = None
+                    price = int(form_role_prices[i])
+                    creator_id = int(form_role_creators[i]) if form_role_creators[i] else None
+                    hex_color = (form_role_colors[i] or '#99aab5').lstrip('#')
+                    color_int = int(hex_color, 16)
+                    
+                    role_id = form_role_ids[i] if form_role_ids[i] else None
 
-                    if existing_role:
-                        role_id = existing_role['id']
-                        if existing_role['color'] != color_int:
-                            payload = {'color': color_int}
-                            discord_api_request(f"/guilds/{guild_id}/roles/{role_id}", method='PATCH', payload=payload)
-                            flash(f"Đã cập nhật màu cho role '{role_name}'.", "info")
-                    else:
+                    if role_id: # role da ton tai
+                        payload = {'name': role_name, 'color': color_int}
+                        discord_api_request(f"/guilds/{guild_id}/roles/{role_id}", method='PATCH', payload=payload)
+                    else: # role moi do admin tao
                         payload = {'name': role_name, 'color': color_int}
                         created_role = discord_api_request(f"/guilds/{guild_id}/roles", method='POST', payload=payload)
                         if created_role:
                             role_id = created_role['id']
-                            flash(f"Đã tạo role mới: '{role_name}'", "success")
                         else:
-                            flash(f"Không thể tạo role '{role_name}'. Vui lòng kiểm tra quyền của bot.", "danger")
+                            flash(f"Không thể tạo role '{role_name}'.", "danger")
                             continue
                     
                     if role_id:
-                        new_shop_roles_db.append((int(role_id), int(role_prices[i])))
-                
-                # lay ds role hien tai
-                cur.execute("SELECT role_id FROM shop_roles WHERE guild_id = %s", (guild_id,))
-                existing_role_ids = {row['role_id'] for row in cur.fetchall()}
-                new_role_ids = {role_id for role_id, price in new_shop_roles_db}
-                
-                # tim role can xoa
-                roles_to_delete = existing_role_ids - new_role_ids
-                if roles_to_delete:
-                    # psycopg2 co the dung list/tuple cho IN
-                    cur.execute("DELETE FROM shop_roles WHERE guild_id = %s AND role_id = ANY(%s)", (guild_id, list(roles_to_delete)))
-
-                # cap nhat hoac them moi
-                for role_id, price in new_shop_roles_db:
-                    cur.execute(
-                        "INSERT INTO shop_roles (guild_id, role_id, price) VALUES (%s, %s, %s) ON CONFLICT(role_id) DO UPDATE SET price = EXCLUDED.price",
-                        (guild_id, role_id, price)
-                    )
+                        cur.execute(
+                            """
+                            INSERT INTO shop_roles (guild_id, role_id, price, creator_id) VALUES (%s, %s, %s, %s)
+                            ON CONFLICT (role_id) DO UPDATE SET price = EXCLUDED.price
+                            """,
+                            (guild_id, int(role_id), price, creator_id)
+                        )
 
             conn.commit()
             flash(f"Đã cập nhật thành công cấu hình cho Server ID: {guild_id}", "success")
@@ -332,7 +333,7 @@ def edit_config(guild_id):
         cur.execute("SELECT config_data FROM guild_configs WHERE guild_id = %s;", (guild_id,))
         db_result = cur.fetchone()
 
-        cur.execute("SELECT role_id, price FROM shop_roles WHERE guild_id = %s ORDER BY price ASC", (guild_id,))
+        cur.execute("SELECT role_id, price, creator_id FROM shop_roles WHERE guild_id = %s ORDER BY price ASC", (guild_id,))
         shop_roles_db = cur.fetchall()
 
     conn.close()
@@ -368,16 +369,21 @@ def edit_config(guild_id):
         category_channels = [ch for ch in all_channels if ch['type'] == 4]
         rateable_channels = [ch for ch in all_channels if ch['type'] in [0, 5, 15]]
     
-    # map role de lay chi tiet
+    # lay thong tin nguoi tao role
+    creator_ids = {r['creator_id'] for r in shop_roles_db if r['creator_id']}
+    user_details = {str(uid): get_user_info(uid) for uid in creator_ids}
+
     role_id_to_details_map = {str(r['id']): {'name': r['name'], 'color': f"#{r['color']:06x}" if r['color'] != 0 else '#000000'} for r in all_roles_raw} if all_roles_raw else {}
     shop_roles_with_details = []
     for r in shop_roles_db:
         details = role_id_to_details_map.get(str(r['role_id']))
         if details:
             shop_roles_with_details.append({
+                'id': r['role_id'],
                 'name': details['name'],
                 'color': details['color'],
-                'price': r['price']
+                'price': r['price'],
+                'creator_id': r['creator_id']
             })
 
     return render_template(
@@ -389,7 +395,8 @@ def edit_config(guild_id):
         category_channels=category_channels,
         rateable_channels=rateable_channels,
         shop_roles=shop_roles_with_details,
-        all_roles=all_roles_raw or []
+        all_roles=all_roles_raw or [],
+        user_details=user_details
     )
 
 @app.route('/edit/<int:guild_id>/members')
@@ -404,7 +411,6 @@ def members(guild_id):
         flash(f"Không thể lấy thông tin server {guild_id}", "danger")
         return redirect(url_for('index'))
     
-    # su dung cache
     guild_id_str = str(guild_id)
     now = time.time()
     api_members = []
@@ -578,7 +584,6 @@ def history(guild_id):
         transactions_raw = cur.fetchall()
     conn.close()
     
-    # lay ds member 1 lan duy nhat
     members_map = {}
     api_members = discord_api_request(f"/guilds/{guild_id}/members?limit=1000")
     if api_members:
@@ -595,11 +600,9 @@ def history(guild_id):
     transactions = []
     for t in transactions_raw:
         user_id = t['user_id']
-        # tra cuu map truoc
         if user_id in members_map:
             t['user_info'] = members_map[user_id]
         else:
-            # fallback cho user da roi sv
             t['user_info'] = get_user_info(user_id)
         transactions.append(t)
 
