@@ -48,6 +48,34 @@
                             </select>
                             <div class="form-text-poetic">Kênh để bot gửi yêu cầu set role style cho admin.</div>
                         </div>
+
+                        <div class="form-group-poetic full-width">
+                             <label class="form-label-poetic">Role cần Ping cho yêu cầu Style</label>
+                            <div class="dual-list-container">
+                                <select multiple class="dual-list-box" id="available-roles">
+                                    {% for role in all_roles %}
+                                        {% if not role.managed and role.name != '@everyone' and (role.id|string not in config.get('CUSTOM_ROLE_PING_ROLES', [])|map('string')) %}
+                                        <option value="{{ role.id }}">{{ role.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+
+                                <div class="dual-list-controls">
+                                    <button type="button" id="add-role-btn">&rsaquo;</button>
+                                    <button type="button" id="remove-role-btn">&lsaquo;</button>
+                                </div>
+                                
+                                <select multiple class="dual-list-box" name="CUSTOM_ROLE_PING_ROLES[]" id="selected-roles">
+                                     {% for role in all_roles %}
+                                        {% if role.id|string in config.get('CUSTOM_ROLE_PING_ROLES', [])|map('string') %}
+                                        <option value="{{ role.id }}">{{ role.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-text-poetic">Chọn role từ cột trái và chuyển sang phải để ping khi booster yêu cầu style.</div>
+                        </div>
+
                         <div class="form-group-poetic">
                             <label for="leaderboard_thread_id" class="form-label-poetic">ID Thread Bảng Xếp Hạng</label>
                             <input type="number" class="form-control-poetic" id="leaderboard_thread_id" name="leaderboard_thread_id" value="{{ config.leaderboard_thread_id or '' }}">
@@ -394,6 +422,8 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('config-form');
+
     // logic tab
     const tabContainer = document.getElementById('configTabs');
     if (tabContainer) {
@@ -415,7 +445,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // mo rong textarea
-    const form = document.getElementById('config-form');
     if (form) {
         form.addEventListener('click', function(event) {
             const target = event.target;
@@ -427,12 +456,39 @@ document.addEventListener('DOMContentLoaded', function () {
                     const isExpanded = wrapper.classList.toggle('expanded');
                     target.textContent = isExpanded ? '−' : '+';
                     if (isExpanded) {
-                        // tinh toan chieu cao
                         textarea.style.height = 'auto';
                         textarea.style.height = (textarea.scrollHeight + 5) + 'px';
                     } else {
                         textarea.style.height = ''; 
                     }
+                }
+            }
+        });
+    }
+
+    // logic dual-list
+    const availableRolesSelect = document.getElementById('available-roles');
+    const selectedRolesSelect = document.getElementById('selected-roles');
+    const addBtn = document.getElementById('add-role-btn');
+    const removeBtn = document.getElementById('remove-role-btn');
+
+    function moveOptions(source, destination) {
+        Array.from(source.selectedOptions).forEach(option => {
+            destination.appendChild(option);
+        });
+    }
+
+    if (addBtn) addBtn.addEventListener('click', () => moveOptions(availableRolesSelect, selectedRolesSelect));
+    if (removeBtn) removeBtn.addEventListener('click', () => moveOptions(selectedRolesSelect, availableRolesSelect));
+    if(availableRolesSelect) availableRolesSelect.addEventListener('dblclick', () => moveOptions(availableRolesSelect, selectedRolesSelect));
+    if(selectedRolesSelect) selectedRolesSelect.addEventListener('dblclick', () => moveOptions(selectedRolesSelect, availableRolesSelect));
+
+    if (form) {
+        form.addEventListener('submit', function() {
+            // chon tat ca role truoc khi submit
+            if(selectedRolesSelect) {
+                for (const option of selectedRolesSelect.options) {
+                    option.selected = true;
                 }
             }
         });
@@ -460,25 +516,21 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function removeRow(button) { button.closest('.dynamic-row').remove(); }
-
 function addShopRole() {
     const template = document.getElementById('shop-role-template');
     const clone = template.content.cloneNode(true);
     document.getElementById('shop-roles-container').appendChild(clone);
 }
-
 function addCategoryRate() { 
     const template = document.getElementById('category-rate-template');
     const clone = template.content.cloneNode(true);
     document.getElementById('category-rates-container').appendChild(clone);
 }
-
 function addChannelRate() { 
     const template = document.getElementById('channel-rate-template');
     const clone = template.content.cloneNode(true);
     document.getElementById('channel-rates-container').appendChild(clone);
 }
-
 function addQnA() { 
     const template = document.getElementById('qna-template');
     const clone = template.content.cloneNode(true);

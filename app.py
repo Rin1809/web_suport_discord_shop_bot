@@ -88,8 +88,17 @@ def parse_form_data(form):
         if form.get(key):
             config[key] = form.get(key)
     
+    # ping roles cho custom role style
+    ping_role_ids = request.form.getlist('CUSTOM_ROLE_PING_ROLES[]')
+    if ping_role_ids:
+        config['CUSTOM_ROLE_PING_ROLES'] = [int(rid) for rid in ping_role_ids]
+    else:
+        config['CUSTOM_ROLE_PING_ROLES'] = [] # dam bao la list
+
     # cac key phuc tap
     for key, value in form.items():
+        if key.endswith('[]'):
+            continue
         if '[' in key and ']' in key:
             parts = key.replace(']', '').split('[')
             d = config
@@ -236,6 +245,9 @@ def edit_config(guild_id):
         flash("Không thể kết nối đến cơ sở dữ liệu!", "danger")
         return redirect(url_for('index'))
 
+    # lay ds role o day de dung cho ca GET va POST
+    all_roles_raw = discord_api_request(f"/guilds/{guild_id}/roles")
+
     if request.method == 'POST':
         config_data_json = parse_form_data(request.form)
 
@@ -246,7 +258,6 @@ def edit_config(guild_id):
                     (Json(config_data_json), guild_id)
                 )
                 
-                all_roles_raw = discord_api_request(f"/guilds/{guild_id}/roles")
                 role_map = {r['name']: r for r in all_roles_raw} if all_roles_raw else {}
 
                 role_names = request.form.getlist('shop_role_name[]')
@@ -337,7 +348,8 @@ def edit_config(guild_id):
         "CURRENCY_RATES": {"default": {}, "categories": {}, "channels": {}},
         "CUSTOM_ROLE_CONFIG": {}, "QNA_DATA": [],
         "BOOSTER_MULTIPLIER_CONFIG": {},
-        "REGULAR_USER_ROLE_CREATION": {}
+        "REGULAR_USER_ROLE_CREATION": {},
+        "CUSTOM_ROLE_PING_ROLES": []
     }
     for key, default_value in keys_to_ensure.items():
         if key not in config:
@@ -349,8 +361,7 @@ def edit_config(guild_id):
         guild_details['icon_url'] = f"https://cdn.discordapp.com/icons/{guild_id}/{icon_hash}.png" if icon_hash else "https://cdn.discordapp.com/embed/avatars/0.png"
     
     all_channels = discord_api_request(f"/guilds/{guild_id}/channels")
-    all_roles_raw = discord_api_request(f"/guilds/{guild_id}/roles")
-
+    
     text_channels, category_channels, rateable_channels = [], [], []
     if all_channels:
         text_channels = [ch for ch in all_channels if ch['type'] == 0]
@@ -377,7 +388,8 @@ def edit_config(guild_id):
         text_channels=text_channels,
         category_channels=category_channels,
         rateable_channels=rateable_channels,
-        shop_roles=shop_roles_with_details
+        shop_roles=shop_roles_with_details,
+        all_roles=all_roles_raw or []
     )
 
 @app.route('/edit/<int:guild_id>/members')

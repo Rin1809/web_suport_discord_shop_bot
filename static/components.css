@@ -232,6 +232,63 @@ h5.form-section-title {
     color: var(--highlight-color-poetic);
 }
 
+/* --- dual-list component --- */
+.dual-list-container {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+.dual-list-box {
+    flex: 1;
+    height: 200px;
+    border-radius: 0.75rem;
+    background-color: rgba(var(--background-color-rgb), 0.6);
+    border: 1px solid var(--border-color);
+    padding: 0.5rem;
+    overflow-y: auto;
+}
+.dual-list-box:focus-within {
+    border-color: var(--highlight-color-poetic);
+    box-shadow: 0 0 10px rgba(var(--highlight-color-poetic-rgb), 0.3);
+}
+.dual-list-box option {
+    padding: 0.6rem 0.8rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    color: var(--text-color-poetic);
+}
+.dual-list-box option:hover {
+    background-color: rgba(var(--highlight-color-poetic-rgb), 0.1);
+}
+.dual-list-box option:checked {
+    background-color: rgba(var(--highlight-color-poetic-rgb), 0.2);
+    color: var(--highlight-color-poetic);
+}
+.dual-list-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.dual-list-controls button {
+    font-family: inherit;
+    font-size: 1.2rem;
+    font-weight: 500;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid var(--border-color);
+    background-color: transparent;
+    color: var(--subtext-color-poetic);
+    transition: all 0.2s ease;
+}
+.dual-list-controls button:hover {
+    border-color: var(--highlight-color-poetic);
+    color: var(--highlight-color-poetic);
+    background-color: rgba(var(--highlight-color-poetic-rgb), 0.1);
+}
+
 /* --- nut bam --- */
 .form-actions {
     margin-top: 3rem;
