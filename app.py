@@ -240,13 +240,12 @@ def edit_config(guild_id):
         config_data_json = parse_form_data(request.form)
 
         try:
-            with conn.cursor() as cur:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(
                     "UPDATE guild_configs SET config_data = %s WHERE guild_id = %s;",
                     (Json(config_data_json), guild_id)
                 )
                 
-                # lay ds role hien tai tu discord
                 all_roles_raw = discord_api_request(f"/guilds/{guild_id}/roles")
                 role_map = {r['name']: r for r in all_roles_raw} if all_roles_raw else {}
 
@@ -272,13 +271,11 @@ def edit_config(guild_id):
 
                     if existing_role:
                         role_id = existing_role['id']
-                        # check xem mau co doi ko
                         if existing_role['color'] != color_int:
                             payload = {'color': color_int}
                             discord_api_request(f"/guilds/{guild_id}/roles/{role_id}", method='PATCH', payload=payload)
                             flash(f"Đã cập nhật màu cho role '{role_name}'.", "info")
                     else:
-                        # tao role moi
                         payload = {'name': role_name, 'color': color_int}
                         created_role = discord_api_request(f"/guilds/{guild_id}/roles", method='POST', payload=payload)
                         if created_role:
@@ -290,9 +287,19 @@ def edit_config(guild_id):
                     
                     if role_id:
                         new_shop_roles_db.append((int(role_id), int(role_prices[i])))
+                
+                # lay ds role hien tai
+                cur.execute("SELECT role_id FROM shop_roles WHERE guild_id = %s", (guild_id,))
+                existing_role_ids = {row['role_id'] for row in cur.fetchall()}
+                new_role_ids = {role_id for role_id, price in new_shop_roles_db}
+                
+                # tim role can xoa
+                roles_to_delete = existing_role_ids - new_role_ids
+                if roles_to_delete:
+                    # psycopg2 co the dung list/tuple cho IN
+                    cur.execute("DELETE FROM shop_roles WHERE guild_id = %s AND role_id = ANY(%s)", (guild_id, list(roles_to_delete)))
 
-                # cap nhat db
-                cur.execute("DELETE FROM shop_roles WHERE guild_id = %s AND role_id NOT IN (SELECT role_id FROM custom_roles WHERE guild_id = %s)", (guild_id, guild_id))
+                # cap nhat hoac them moi
                 for role_id, price in new_shop_roles_db:
                     cur.execute(
                         "INSERT INTO shop_roles (guild_id, role_id, price) VALUES (%s, %s, %s) ON CONFLICT(role_id) DO UPDATE SET price = EXCLUDED.price",
@@ -314,7 +321,7 @@ def edit_config(guild_id):
         cur.execute("SELECT config_data FROM guild_configs WHERE guild_id = %s;", (guild_id,))
         db_result = cur.fetchone()
 
-        cur.execute("SELECT role_id, price FROM shop_roles WHERE guild_id = %s AND role_id NOT IN (SELECT role_id FROM custom_roles WHERE guild_id = %s) ORDER BY price ASC", (guild_id, guild_id))
+        cur.execute("SELECT role_id, price FROM shop_roles WHERE guild_id = %s ORDER BY price ASC", (guild_id,))
         shop_roles_db = cur.fetchall()
 
     conn.close()
