@@ -83,7 +83,7 @@
                         </div>
                         <div class="form-group-poetic">
                             <label for="embed_color" class="form-label-poetic">Màu Embed (HEX)</label>
-                            <input type="text" class="form-control-poetic" id="embed_color" name="EMBED_COLOR" value="{{ config.get('EMBED_COLOR', '#ff00af') }}" placeholder="#ff00af">
+                            <input type="text" class="form-control-poetic" id="embed_color" name="EMBED_COLOR" value="{{ config.get('EMBED_COLOR', '#ff00af') }}" placeholder="#ff00af" data-coloris>
                         </div>
                          <div class="form-group-poetic">
                             <label for="refund_percentage" class="form-label-poetic">Tỷ lệ hoàn tiền khi bán role (%)</label>
@@ -142,7 +142,7 @@
                                 </div>
                                 <div class="form-group-poetic" style="margin:0;">
                                     <label class="form-label-poetic">Màu (HEX)</label>
-                                    <input type="text" class="form-control-poetic" name="shop_role_color[]" value="{{ role.color }}" placeholder="#ffaaaa">
+                                    <input type="text" class="form-control-poetic" name="shop_role_color[]" value="{{ role.color }}" placeholder="#ffaaaa" data-coloris>
                                 </div>
                                 {% if role.creator_id %}
                                 <div class="form-text-poetic full-width" style="margin-top:0.5rem; color: var(--info-color);">
@@ -159,7 +159,25 @@
 
                 <div class="tab-pane" id="messages">
                     <h5 class="form-section-title">Embed Shop Chính</h5>
-                    <div class="form-grid">
+                     <div class="embed-preview-container" id="embed-preview-container">
+                        <label class="form-label-poetic" style="text-align: center; margin-bottom: 1rem;">Xem trước Embed</label>
+                        <div class="discord-embed-preview" id="discord-embed-preview">
+                           <div class="embed-content-wrapper">
+                                <div class="embed-main">
+                                    <div class="embed-title" id="preview-title"></div>
+                                    <div class="embed-description" id="preview-description"></div>
+                                </div>
+                                <div class="embed-image">
+                                    <img src="" alt="" id="preview-image" style="display:none;">
+                                </div>
+                                <div class="embed-footer" id="preview-footer"></div>
+                            </div>
+                            <div class="embed-thumbnail">
+                                <img src="" alt="" id="preview-thumbnail" style="display:none;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-grid" style="margin-top: 2rem;">
                         <div class="form-group-poetic"><label class="form-label-poetic">Tiêu đề</label><input type="text" class="form-control-poetic" name="MESSAGES[SHOP_EMBED_TITLE]" value="{{ config.MESSAGES.get('SHOP_EMBED_TITLE', 'Shop Role') }}"></div>
                         <div class="form-group-poetic"><label class="form-label-poetic">URL Thumbnail</label><input type="url" class="form-control-poetic" name="SHOP_EMBED_THUMBNAIL_URL" value="{{ config.get('SHOP_EMBED_THUMBNAIL_URL', '') }}"></div>
                         <div class="form-group-poetic full-width">
@@ -368,7 +386,7 @@
             </div>
             <div class="form-group-poetic" style="margin:0;">
                 <label class="form-label-poetic">Màu (HEX)</label>
-                <input type="text" class="form-control-poetic" name="shop_role_color[]" value="#99aab5" placeholder="#ffaaaa">
+                <input type="text" class="form-control-poetic" name="shop_role_color[]" value="#99aab5" placeholder="#ffaaaa" data-coloris>
             </div>
         </div>
         <div class="dynamic-row-actions"><button type="button" class="poetic-button poetic-button-danger" onclick="removeRow(this)">Xóa</button></div>
@@ -434,121 +452,4 @@
     </div>
 </template>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const form = document.getElementById('config-form');
-
-    // logic tab
-    const tabContainer = document.getElementById('configTabs');
-    if (tabContainer) {
-        const navLinks = tabContainer.querySelectorAll('.nav-link');
-        const tabPanes = document.querySelectorAll('.tab-content .tab-pane');
-
-        navLinks.forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                navLinks.forEach(l => l.classList.remove('active'));
-                this.classList.add('active');
-                tabPanes.forEach(p => p.classList.remove('active'));
-                const targetPane = document.querySelector(this.getAttribute('data-target'));
-                if (targetPane) {
-                    targetPane.classList.add('active');
-                }
-            });
-        });
-    }
-
-    // mo rong textarea
-    if (form) {
-        form.addEventListener('click', function(event) {
-            const target = event.target;
-            if (target.classList.contains('expand-toggle-btn')) {
-                event.preventDefault(); 
-                const wrapper = target.closest('.textarea-wrapper');
-                if (wrapper) {
-                    const textarea = wrapper.querySelector('textarea');
-                    const isExpanded = wrapper.classList.toggle('expanded');
-                    target.textContent = isExpanded ? '−' : '+';
-                    if (isExpanded) {
-                        textarea.style.height = 'auto';
-                        textarea.style.height = (textarea.scrollHeight + 5) + 'px';
-                    } else {
-                        textarea.style.height = ''; 
-                    }
-                }
-            }
-        });
-    }
-
-    // logic dual-list
-    const availableRolesSelect = document.getElementById('available-roles');
-    const selectedRolesSelect = document.getElementById('selected-roles');
-    const addBtn = document.getElementById('add-role-btn');
-    const removeBtn = document.getElementById('remove-role-btn');
-
-    function moveOptions(source, destination) {
-        Array.from(source.selectedOptions).forEach(option => {
-            destination.appendChild(option);
-        });
-    }
-
-    if (addBtn) addBtn.addEventListener('click', () => moveOptions(availableRolesSelect, selectedRolesSelect));
-    if (removeBtn) removeBtn.addEventListener('click', () => moveOptions(selectedRolesSelect, availableRolesSelect));
-    if(availableRolesSelect) availableRolesSelect.addEventListener('dblclick', () => moveOptions(availableRolesSelect, selectedRolesSelect));
-    if(selectedRolesSelect) selectedRolesSelect.addEventListener('dblclick', () => moveOptions(selectedRolesSelect, availableRolesSelect));
-
-    if (form) {
-        form.addEventListener('submit', function() {
-            // chon tat ca role truoc khi submit
-            if(selectedRolesSelect) {
-                for (const option of selectedRolesSelect.options) {
-                    option.selected = true;
-                }
-            }
-        });
-    }
-
-    // active link sidebar
-    const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
-    const path = window.location.pathname;
-    sidebarLinks.forEach(link => {
-        const href = link.getAttribute('href');
-        if (href && href !== '#' && path.includes(href)) {
-             sidebarLinks.forEach(btn => btn.classList.remove('active'));
-             link.classList.add('active');
-        }
-    });
-    
-    // active mac dinh
-    if (path.includes('/edit/') && !path.includes('/member/') && !path.includes('/history')) {
-        const configLink = document.querySelector('.sidebar-nav a[href*="/edit/{{guild_id}}"]');
-         if(configLink && !configLink.href.includes('member') && !configLink.href.includes('history')) {
-            sidebarLinks.forEach(btn => btn.classList.remove('active'));
-            configLink.classList.add('active');
-        }
-    }
-});
-
-function removeRow(button) { button.closest('.dynamic-row').remove(); }
-function addShopRole() {
-    const template = document.getElementById('shop-role-template');
-    const clone = template.content.cloneNode(true);
-    document.getElementById('shop-roles-container').appendChild(clone);
-}
-function addCategoryRate() { 
-    const template = document.getElementById('category-rate-template');
-    const clone = template.content.cloneNode(true);
-    document.getElementById('category-rates-container').appendChild(clone);
-}
-function addChannelRate() { 
-    const template = document.getElementById('channel-rate-template');
-    const clone = template.content.cloneNode(true);
-    document.getElementById('channel-rates-container').appendChild(clone);
-}
-function addQnA() { 
-    const template = document.getElementById('qna-template');
-    const clone = template.content.cloneNode(true);
-    document.getElementById('qna-container').appendChild(clone);
-}
-</script>
 {% endblock %}

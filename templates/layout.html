@@ -8,13 +8,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playwrite+DK+Loopet:wght@100..400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <!-- css -->
     <link href="{{ url_for('static', filename='base.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='layout.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='components.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='animations.css') }}" rel="stylesheet">
+    <!-- color picker -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@melloware/coloris@0.22.0/dist/coloris.min.css"/>
 </head>
-<body>
+<body data-guild-id="{{ guild_id }}">
     <div class="starfield"></div>
     <div class="starfield"></div>
     <div class="starfield"></div>
@@ -56,7 +60,15 @@
     <main class="content-wrapper {% if guild %}with-sidebar{% endif %}">
         {% block content %}{% endblock %}
     </main>
+    
+    <!-- JS Libs -->
+    <script src="https://cdn.jsdelivr.net/npm/@melloware/coloris@0.22.0/dist/coloris.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
+    <!-- App JS -->
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+    
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         // an/hien sidebar
@@ -83,6 +95,12 @@
                     alert.remove();
                 }, 500);
             }, 5000);
+        });
+
+        // ket noi socketio
+        const socket = io();
+        socket.on('connect', function() {
+            console.log('Da ket noi toi server dashboard!');
         });
     });
     </script>

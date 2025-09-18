@@ -8,12 +8,14 @@ import time
 from psycopg2.extras import Json, RealDictCursor
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, flash
+from flask_socketio import SocketIO
 from collections import defaultdict
 
 load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
+socketio = SocketIO(app)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
@@ -35,6 +37,8 @@ def discord_api_request(endpoint, method='GET', payload=None):
             res = requests.post(f"{API_BASE_URL}{endpoint}", headers=headers, json=payload)
         elif method == 'PATCH':
             res = requests.patch(f"{API_BASE_URL}{endpoint}", headers=headers, json=payload)
+        elif method == 'DELETE':
+            res = requests.delete(f"{API_BASE_URL}{endpoint}", headers=headers)
         
         res.raise_for_status()
         return res.json() if res.status_code != 204 else None
@@ -80,7 +84,6 @@ def get_db_connection():
 def parse_form_data(form):
     config = defaultdict(dict)
     
-    # cac key don
     simple_keys = [
         'shop_channel_id', 'leaderboard_thread_id', 'ADMIN_LOG_CHANNEL_ID',
         'EMBED_COLOR', 'SELL_REFUND_PERCENTAGE',
@@ -91,14 +94,12 @@ def parse_form_data(form):
         if form.get(key):
             config[key] = form.get(key)
     
-    # ping roles cho custom role style
     ping_role_ids = request.form.getlist('CUSTOM_ROLE_PING_ROLES[]')
     if ping_role_ids:
         config['CUSTOM_ROLE_PING_ROLES'] = [int(rid) for rid in ping_role_ids]
     else:
-        config['CUSTOM_ROLE_PING_ROLES'] = [] # dam bao la list
+        config['CUSTOM_ROLE_PING_ROLES'] = []
 
-    # cac key phuc tap
     for key, value in form.items():
         if key.endswith('[]'):
             continue
@@ -111,7 +112,6 @@ def parse_form_data(form):
                 d = d[part]
             d[parts[-1]] = value if value else None
 
-    # chuyen doi kieu
     if config.get('shop_channel_id'):
         config['shop_channel_id'] = int(config['shop_channel_id'])
     else:
@@ -162,7 +162,6 @@ def parse_form_data(form):
         if booster_conf.get('PER_BOOST_ADDITION'):
             booster_conf['PER_BOOST_ADDITION'] = float(booster_conf['PER_BOOST_ADDITION'])
 
-    # ty le category
     cat_ids = request.form.getlist('category_rate_id[]')
     cat_msgs = request.form.getlist('category_rate_messages[]')
     cat_reacts = request.form.getlist('category_rate_reactions[]')
@@ -175,7 +174,6 @@ def parse_form_data(form):
                 "REACTIONS_PER_COIN": int(cat_reacts[i]) if cat_reacts[i] else None
             }
     
-    # ty le channel
     chan_ids = request.form.getlist('channel_rate_id[]')
     chan_msgs = request.form.getlist('channel_rate_messages[]')
     chan_reacts = request.form.getlist('channel_rate_reactions[]')
@@ -188,7 +186,6 @@ def parse_form_data(form):
                 "REACTIONS_PER_COIN": int(chan_reacts[i]) if chan_reacts[i] else None
             }
 
-    # q&a
     qna_labels = request.form.getlist('qna_label[]')
     qna_descriptions = request.form.getlist('qna_description[]')
     qna_emojis = request.form.getlist('qna_emoji[]')
@@ -250,8 +247,6 @@ def edit_config(guild_id):
         flash("Không thể kết nối đến cơ sở dữ liệu!", "danger")
         return redirect(url_for('index'))
 
-    all_roles_raw = discord_api_request(f"/guilds/{guild_id}/roles")
-
     if request.method == 'POST':
         config_data_json = parse_form_data(request.form)
 
@@ -262,29 +257,22 @@ def edit_config(guild_id):
                     (Json(config_data_json), guild_id)
                 )
                 
-                # lay het role tu form
                 form_role_ids = request.form.getlist('shop_role_id[]')
                 form_role_names = request.form.getlist('shop_role_name[]')
                 form_role_prices = request.form.getlist('shop_role_price[]')
                 form_role_colors = request.form.getlist('shop_role_color[]')
                 form_role_creators = request.form.getlist('shop_role_creator_id[]')
 
-                # lay role hien tai trong db
                 cur.execute("SELECT role_id FROM shop_roles WHERE guild_id = %s", (guild_id,))
                 db_role_ids = {str(row['role_id']) for row in cur.fetchall()}
                 
-                # xoa role ko co trong form
                 valid_form_role_ids = {rid for rid in form_role_ids if rid}
                 roles_to_delete = db_role_ids - valid_form_role_ids
                 if roles_to_delete:
-                    # xoa discord role
                     for del_id in roles_to_delete:
                         discord_api_request(f"/guilds/{guild_id}/roles/{del_id}", method='DELETE')
-                    # xoa db record
                     cur.execute("DELETE FROM shop_roles WHERE guild_id = %s AND role_id = ANY(%s)", (guild_id, list(roles_to_delete)))
 
-                # xu ly tung role
-                role_map = {r['name']: r for r in all_roles_raw} if all_roles_raw else {}
                 for i, role_name in enumerate(form_role_names):
                     role_name = role_name.strip()
                     if not (role_name and form_role_prices[i]):
@@ -297,10 +285,16 @@ def edit_config(guild_id):
                     
                     role_id = form_role_ids[i] if form_role_ids[i] else None
 
-                    if role_id: # role da ton tai
+                    if role_id:
+                        # check role nay co phai role shop ko
+                        cur.execute("SELECT 1 FROM shop_roles WHERE role_id = %s AND guild_id = %s", (int(role_id), guild_id))
+                        if cur.fetchone() is None:
+                            flash(f"Lỗi bảo mật: Đã cố gắng chỉnh sửa role ID {role_id} không thuộc shop.", "danger")
+                            continue
+                        
                         payload = {'name': role_name, 'color': color_int}
                         discord_api_request(f"/guilds/{guild_id}/roles/{role_id}", method='PATCH', payload=payload)
-                    else: # role moi do admin tao
+                    else:
                         payload = {'name': role_name, 'color': color_int}
                         created_role = discord_api_request(f"/guilds/{guild_id}/roles", method='POST', payload=payload)
                         if created_role:
@@ -320,6 +314,8 @@ def edit_config(guild_id):
 
             conn.commit()
             flash(f"Đã cập nhật thành công cấu hình cho Server ID: {guild_id}", "success")
+            # gui event reload cho bot
+            socketio.emit('config_updated', {'guild_id': str(guild_id)})
         except Exception as e:
             conn.rollback()
             flash(f"Lỗi khi cập nhật database: {e}", "danger")
@@ -362,6 +358,7 @@ def edit_config(guild_id):
         guild_details['icon_url'] = f"https://cdn.discordapp.com/icons/{guild_id}/{icon_hash}.png" if icon_hash else "https://cdn.discordapp.com/embed/avatars/0.png"
     
     all_channels = discord_api_request(f"/guilds/{guild_id}/channels")
+    all_roles_raw = discord_api_request(f"/guilds/{guild_id}/roles")
     
     text_channels, category_channels, rateable_channels = [], [], []
     if all_channels:
@@ -369,7 +366,6 @@ def edit_config(guild_id):
         category_channels = [ch for ch in all_channels if ch['type'] == 4]
         rateable_channels = [ch for ch in all_channels if ch['type'] in [0, 5, 15]]
     
-    # lay thong tin nguoi tao role
     creator_ids = {r['creator_id'] for r in shop_roles_db if r['creator_id']}
     user_details = {str(uid): get_user_info(uid) for uid in creator_ids}
 
@@ -398,6 +394,8 @@ def edit_config(guild_id):
         all_roles=all_roles_raw or [],
         user_details=user_details
     )
+
+# ... (cac route khac giu nguyen) ...
 
 @app.route('/edit/<int:guild_id>/members')
 def members(guild_id):
@@ -619,4 +617,4 @@ def history(guild_id):
 
 
 if __name__ == '__main__':
-    app.run('0.0.0.0', debug=True, port=5001)
+    socketio.run(app, host='0.0.0.0', debug=True, port=5001)
