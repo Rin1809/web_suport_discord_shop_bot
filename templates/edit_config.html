@@ -159,21 +159,21 @@
 
                 <div class="tab-pane" id="messages">
                     <h5 class="form-section-title">Embed Shop Chính</h5>
-                     <div class="embed-preview-container" id="embed-preview-container">
+                     <div class="embed-preview-container" id="shop-embed-preview-container">
                         <label class="form-label-poetic" style="text-align: center; margin-bottom: 1rem;">Xem trước Embed</label>
-                        <div class="discord-embed-preview" id="discord-embed-preview">
+                        <div class="discord-embed-preview" id="discord-shop-embed-preview">
                            <div class="embed-content-wrapper">
                                 <div class="embed-main">
-                                    <div class="embed-title" id="preview-title"></div>
-                                    <div class="embed-description" id="preview-description"></div>
+                                    <div class="embed-title" id="preview-shop-title"></div>
+                                    <div class="embed-description" id="preview-shop-description"></div>
                                 </div>
                                 <div class="embed-image">
-                                    <img src="" alt="" id="preview-image" style="display:none;">
+                                    <img src="" alt="" id="preview-shop-image" style="display:none;">
                                 </div>
-                                <div class="embed-footer" id="preview-footer"></div>
+                                <div class="embed-footer" id="preview-shop-footer"></div>
                             </div>
                             <div class="embed-thumbnail">
-                                <img src="" alt="" id="preview-thumbnail" style="display:none;">
+                                <img src="" alt="" id="preview-shop-thumbnail" style="display:none;">
                             </div>
                         </div>
                     </div>
@@ -192,7 +192,23 @@
                     </div>
                     <hr/>
                     <h5 class="form-section-title">Embed Thông Tin Tài Khoản</h5>
-                    <div class="form-grid">
+                    <div class="embed-preview-container" id="account-embed-preview-container">
+                        <label class="form-label-poetic" style="text-align: center; margin-bottom: 1rem;">Xem trước Embed</label>
+                        <div class="discord-embed-preview" id="discord-account-embed-preview">
+                           <div class="embed-content-wrapper">
+                                <div class="embed-main">
+                                    <div class="embed-title" id="preview-account-title"></div>
+                                    <div class="embed-description" id="preview-account-description"></div>
+                                    <div class="embed-field-container">
+                                        <div class="embed-field-name" id="preview-account-field-name"></div>
+                                        <div class="embed-field-value" id="preview-account-field-value"></div>
+                                    </div>
+                                </div>
+                                <div class="embed-footer" id="preview-account-footer"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-grid" style="margin-top: 2rem;">
                          <div class="form-group-poetic"><label class="form-label-poetic">Tiêu đề</label><input type="text" class="form-control-poetic" name="MESSAGES[ACCOUNT_INFO_TITLE]" value="{{ config.MESSAGES.get('ACCOUNT_INFO_TITLE', '') }}"></div>
                          <div class="form-group-poetic full-width">
                              <div class="textarea-wrapper">
@@ -207,7 +223,22 @@
                     </div>
                     <hr/>
                     <h5 class="form-section-title">Embed Tỷ Lệ Đào Coin</h5>
-                     <div class="form-grid">
+                    <div class="embed-preview-container" id="rates-embed-preview-container">
+                        <label class="form-label-poetic" style="text-align: center; margin-bottom: 1rem;">Xem trước Embed</label>
+                        <div class="discord-embed-preview" id="discord-rates-embed-preview">
+                           <div class="embed-content-wrapper">
+                                <div class="embed-main">
+                                    <div class="embed-title" id="preview-rates-title"></div>
+                                    <div class="embed-description" id="preview-rates-description"></div>
+                                </div>
+                                <div class="embed-image">
+                                    <img src="" alt="" id="preview-rates-image" style="display:none;">
+                                </div>
+                                <div class="embed-footer" id="preview-rates-footer"></div>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="form-grid" style="margin-top: 2rem;">
                         <div class="form-group-poetic"><label class="form-label-poetic">Tiêu đề</label><input type="text" class="form-control-poetic" name="MESSAGES[EARNING_RATES_TITLE]" value="{{ config.MESSAGES.get('EARNING_RATES_TITLE', 'Tỷ lệ kiếm coin') }}"></div>
                         <div class="form-group-poetic"><label class="form-label-poetic">URL Ảnh</label><input type="url" class="form-control-poetic" name="EARNING_RATES_IMAGE_URL" value="{{ config.get('EARNING_RATES_IMAGE_URL', '') }}"></div>
                         <div class="form-group-poetic full-width">
@@ -356,6 +387,16 @@
                                     <textarea class="form-control-poetic" name="qna_answer_description[]" rows="3">{{ item.answer_description or '' }}</textarea>
                                 </div>
                             </div>
+                            <div class="embed-preview-container qna-preview-container">
+                                <div class="discord-embed-preview">
+                                    <div class="embed-content-wrapper">
+                                        <div class="embed-main">
+                                            <div class="embed-title preview-qna-title"></div>
+                                            <div class="embed-description preview-qna-description"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         {% endfor %}
                     </div>
@@ -447,6 +488,16 @@
                 <label class="form-label-poetic">Nội dung trả lời</label>
                 <button type="button" class="expand-toggle-btn" title="Mở rộng/Thu gọn">+</button>
                 <textarea class="form-control-poetic" name="qna_answer_description[]" rows="3"></textarea>
+            </div>
+        </div>
+        <div class="embed-preview-container qna-preview-container">
+            <div class="discord-embed-preview">
+                <div class="embed-content-wrapper">
+                    <div class="embed-main">
+                        <div class="embed-title preview-qna-title"></div>
+                        <div class="embed-description preview-qna-description"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
