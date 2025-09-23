@@ -264,14 +264,20 @@ def edit_config(guild_id):
                 form_role_creators = request.form.getlist('shop_role_creator_id[]')
 
                 cur.execute("SELECT role_id FROM shop_roles WHERE guild_id = %s", (guild_id,))
-                db_role_ids = {str(row['role_id']) for row in cur.fetchall()}
-                
-                valid_form_role_ids = {rid for rid in form_role_ids if rid}
+        
+                db_role_ids = {row['role_id'] for row in cur.fetchall()}
+
+                form_role_ids = request.form.getlist('shop_role_id[]')
+                valid_form_role_ids = {int(rid) for rid in form_role_ids if rid}
+
                 roles_to_delete = db_role_ids - valid_form_role_ids
+
                 if roles_to_delete:
                     for del_id in roles_to_delete:
                         discord_api_request(f"/guilds/{guild_id}/roles/{del_id}", method='DELETE')
+                    
                     cur.execute("DELETE FROM shop_roles WHERE guild_id = %s AND role_id = ANY(%s)", (guild_id, list(roles_to_delete)))
+
 
                 for i, role_name in enumerate(form_role_names):
                     role_name = role_name.strip()
