@@ -153,13 +153,12 @@ def parse_form_data(form):
             default_rates['REACTIONS_PER_COIN'] = int(default_rates['REACTIONS_PER_COIN'])
 
     if 'CUSTOM_ROLE_CONFIG' in config:
+        # rem default purchase price logic
         custom_role_conf = config['CUSTOM_ROLE_CONFIG']
         if custom_role_conf.get('MIN_BOOST_COUNT'):
             custom_role_conf['MIN_BOOST_COUNT'] = int(custom_role_conf['MIN_BOOST_COUNT'])
         if custom_role_conf.get('PRICE'):
             custom_role_conf['PRICE'] = int(custom_role_conf['PRICE'])
-        if custom_role_conf.get('DEFAULT_PURCHASE_PRICE'):
-            custom_role_conf['DEFAULT_PURCHASE_PRICE'] = int(custom_role_conf['DEFAULT_PURCHASE_PRICE'])
 
     if 'REGULAR_USER_ROLE_CREATION' in config:
         regular_conf = config['REGULAR_USER_ROLE_CREATION']
