@@ -603,3 +603,25 @@ h5.form-section-title {
     vertical-align: bottom;
     margin: 0 1px;
 }
+
+/* --- khu vuc nguy hiem --- */
+.danger-zone {
+    margin-top: 3rem;
+    padding: 1.5rem;
+    border: 2px solid var(--danger-color);
+    border-radius: 1rem;
+    background-color: rgba(var(--danger-color-rgb), 0.05);
+}
+.danger-zone h5 {
+    font-size: 1.3rem;
+    color: var(--danger-color);
+    margin: 0 0 1rem 0;
+}
+.danger-zone p {
+    margin: 0 0 1.5rem 0;
+    color: var(--subtext-color-poetic);
+}
+.danger-zone .action {
+    display: flex;
+    justify-content: flex-end;
+}

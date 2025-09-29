@@ -439,7 +439,34 @@ def edit_config(guild_id):
         custom_roles_details=custom_roles_details # truyen vao template
     )
 
-# ... (cac route khac giu nguyen) ...
+@app.route('/wipe/<int:guild_id>', methods=['POST'])
+def wipe_server_data(guild_id):
+    if not db:
+        flash("Chức năng database không khả dụng.", "danger")
+        return redirect(url_for('edit_config', guild_id=guild_id))
+        
+    try:
+        # 1. Xoa du lieu db va lay ve ID role can xoa tren Discord
+        role_ids_to_delete = db.wipe_guild_data(guild_id)
+        
+        # 2. Xoa role tren Discord
+        deleted_count = 0
+        for role_id in role_ids_to_delete:
+            try:
+                # ly do de log
+                reason = "Server data wipe from dashboard"
+                discord_api_request(f"/guilds/{guild_id}/roles/{role_id}?reason={reason}", method='DELETE')
+                deleted_count += 1
+            except Exception as e:
+                print(f"Khong the xoa role {role_id} cua guild {guild_id}: {e}")
+        
+        flash(f"Đã xóa thành công toàn bộ dữ liệu của server {guild_id}. {deleted_count} role đã bị xóa khỏi Discord.", "success")
+
+    except Exception as e:
+        flash(f"Đã xảy ra lỗi nghiêm trọng khi xóa dữ liệu server: {e}", "danger")
+    
+    return redirect(url_for('edit_config', guild_id=guild_id))
+
 
 @app.route('/edit/<int:guild_id>/members')
 def members(guild_id):

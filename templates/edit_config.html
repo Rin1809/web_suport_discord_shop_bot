@@ -436,6 +436,22 @@
                 <button type="submit" name="submit" class="poetic-button poetic-button-primary">Lưu thay đổi</button>
             </div>
         </form>
+
+        <hr>
+
+        <div class="danger-zone">
+            <h5>Khu Vực Nguy Hiểm</h5>
+            <p>
+                Hành động bên dưới sẽ xóa TOÀN BỘ dữ liệu của server này khỏi database (bao gồm số dư người dùng, role shop, role tùy chỉnh, lịch sử giao dịch) và xóa các role tương ứng trên Discord.
+                <strong>Hành động này không thể hoàn tác.</strong>
+            </p>
+            <div class="action">
+                <form action="{{ url_for('wipe_server_data', guild_id=guild_id) }}" method="POST" onsubmit="return confirm('Bạn có CHẮC CHẮN muốn xóa TOÀN BỘ dữ liệu của server này không? Mọi số dư, role shop, role tùy chỉnh sẽ bị mất vĩnh viễn.')">
+                    <button type="submit" class="poetic-button poetic-button-danger" style="border-radius: 9999px; padding: 0.8rem 2rem;">Xóa Toàn Bộ Dữ Liệu Server</button>
+                </form>
+            </div>
+        </div>
+
     </div>
 </div>
 
