@@ -11,6 +11,20 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_socketio import SocketIO
 from collections import defaultdict
 
+# load db functions tu du an bot
+import sys
+# them duong dan den thu muc cha de import module database
+# can than voi cach trien khai thuc te
+try:
+    bot_project_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Discord_Role_Shop'))
+    if bot_project_path not in sys.path:
+        sys.path.insert(0, bot_project_path)
+    from database import database as db
+except ImportError:
+    print("WARNING: Khong the import module database tu project bot. Su dung ket noi truc tiep.")
+    db = None
+
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -20,6 +34,10 @@ socketio = SocketIO(app)
 DATABASE_URL = os.getenv("DATABASE_URL")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 API_BASE_URL = "https://discord.com/api/v10"
+
+# khoi tao db neu co the
+if db:
+    db.init_db(DATABASE_URL)
 
 # cache
 _user_cache = {}
@@ -388,6 +406,25 @@ def edit_config(guild_id):
                 'creator_id': r['creator_id']
             })
 
+    # lay ds custom role
+    custom_roles_db = db.get_all_custom_roles_for_guild(guild_id) if db else []
+    custom_roles_details = []
+    if custom_roles_db and all_roles_raw:
+        # tao map de tra cuu nhanh
+        role_info_map = {str(r['id']): r for r in all_roles_raw}
+        for cr in custom_roles_db:
+            role_info = role_info_map.get(str(cr['role_id']))
+            if role_info:
+                custom_roles_details.append({
+                    'user_info': get_user_info(cr['user_id']),
+                    'role_info': {
+                        'id': role_info['id'],
+                        'name': role_info['name'],
+                        'color': f"#{role_info['color']:06x}"
+                    }
+                })
+
+
     return render_template(
         'edit_config.html', 
         guild_id=guild_id, 
@@ -398,7 +435,8 @@ def edit_config(guild_id):
         rateable_channels=rateable_channels,
         shop_roles=shop_roles_with_details,
         all_roles=all_roles_raw or [],
-        user_details=user_details
+        user_details=user_details,
+        custom_roles_details=custom_roles_details # truyen vao template
     )
 
 # ... (cac route khac giu nguyen) ...

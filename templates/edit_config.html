@@ -15,9 +15,10 @@
             <ul class="nav-tabs" id="configTabs">
                 <li><a class="nav-link active" data-target="#general">Cài đặt chung</a></li>
                 <li><a class="nav-link" data-target="#shoproles">Role Shop</a></li>
+                <li><a class="nav-link" data-target="#customroles-list">Role Booster</a></li>
                 <li><a class="nav-link" data-target="#messages">Tin nhắn & Embeds</a></li>
                 <li><a class="nav-link" data-target="#rates">Tỷ lệ Coin</a></li>
-                <li><a class="nav-link" data-target="#customrole">Role Tùy Chỉnh</a></li>
+                <li><a class="nav-link" data-target="#customrole">Cài đặt Role Tùy Chỉnh</a></li>
                 <li><a class="nav-link" data-target="#qna">Q&A</a></li>
             </ul>
 
@@ -155,6 +156,33 @@
                         {% endfor %}
                     </div>
                     <button type="button" class="poetic-button poetic-button-success" style="margin-top: 1rem;" onclick="addShopRole()">Thêm Role (Admin)</button>
+                </div>
+
+                <div class="tab-pane" id="customroles-list">
+                    <h5 class="form-section-title">Danh sách Role Booster Tùy Chỉnh</h5>
+                    <div class="form-text-poetic" style="margin-bottom: 1.5rem;">
+                        Hiển thị các role tùy chỉnh đang hoạt động do các booster của server tạo ra.
+                        Nhấp vào thẻ để xem và chỉnh sửa chi tiết thành viên.
+                    </div>
+                    <div class="server-grid">
+                        {% for role in custom_roles_details %}
+                            <a href="{{ url_for('edit_member', guild_id=guild_id, user_id=role.user_info.id) }}" class="server-card">
+                                <img src="{{ role.user_info.avatar_url }}" alt="Avatar" class="server-card-icon">
+                                <div class="server-card-info">
+                                    <h5>{{ role.user_info.name }}</h5>
+                                    <div class="member-card-balance" style="color: var(--text-color-poetic); margin-top: 0.2rem;">
+                                        <span style="color: {{ role.role_info.color }}; font-size: 1.5rem; line-height: 1;">●</span>
+                                        {{ role.role_info.name }}
+                                    </div>
+                                    <small>User ID: {{ role.user_info.id }} | Role ID: {{ role.role_info.id }}</small>
+                                </div>
+                            </a>
+                        {% else %}
+                            <p style="text-align: center; grid-column: 1 / -1; font-size: 1.1rem; color: var(--subtext-color-poetic);">
+                                Chưa có role tùy chỉnh nào được tạo.
+                            </p>
+                        {% endfor %}
+                    </div>
                 </div>
 
                 <div class="tab-pane" id="messages">
