@@ -362,6 +362,13 @@
                      <div class="form-grid">
                          <div class="form-group-poetic"><label class="form-label-poetic">Số lần boost tối thiểu</label><input type="number" class="form-control-poetic" name="CUSTOM_ROLE_CONFIG[MIN_BOOST_COUNT]" value="{{ config.CUSTOM_ROLE_CONFIG.get('MIN_BOOST_COUNT', 2) }}"></div>
                          <div class="form-group-poetic"><label class="form-label-poetic">Giá tạo role (coin)</label><input type="number" class="form-control-poetic" name="CUSTOM_ROLE_CONFIG[PRICE]" value="{{ config.CUSTOM_ROLE_CONFIG.get('PRICE', 1000) }}"></div>
+                      
+                         <div class="form-group-poetic">
+                            <label class="form-label-poetic">Phí chỉnh sửa role (coin)</label>
+                            <input type="number" class="form-control-poetic" name="CUSTOM_ROLE_CONFIG[EDIT_PRICE]" value="{{ config.CUSTOM_ROLE_CONFIG.get('EDIT_PRICE', 500) }}">
+                            <div class="form-text-poetic">Phí cho mỗi lần người dùng sửa role. Đặt 0 để miễn phí.</div>
+                        </div>
+                
                     </div>
                     <hr>
                     <h5 class="form-section-title">Cài đặt Tạo Role (Thành viên thường)</h5>
