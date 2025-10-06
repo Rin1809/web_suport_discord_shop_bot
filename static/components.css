@@ -625,3 +625,32 @@ h5.form-section-title {
     display: flex;
     justify-content: flex-end;
 }
+
+/* --- live log --- */
+.log-container {
+    background-color: rgba(var(--background-color-rgb), 0.7);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 1rem 1.5rem;
+    height: 75vh;
+    overflow-y: scroll;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column-reverse; /* log moi nhat o tren cung */
+}
+
+.log-line {
+    padding: 0.2rem 0;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.log-line--INFO { color: var(--text-color-poetic); }
+.log-line--WARNING { color: var(--warning-color); }
+.log-line--ERROR { color: var(--danger-color); }
+.log-line--CRITICAL { 
+    color: var(--danger-color);
+    font-weight: bold;
+    background-color: rgba(var(--danger-color-rgb), 0.1);
+}

@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+
+{% block title %}Live Log - {{ guild.name }}{% endblock %}
+
+{% block content %}
+
+<h1 class="main-title poetic-header">Live Log: {{ guild.name }}</h1>
+<p style="text-align: center; margin-top: -2rem; margin-bottom: 2rem; color: var(--subtext-color-poetic);">
+    Nhật ký hoạt động của bot sẽ xuất hiện ở đây theo thời gian thực.
+</p>
+
+<div class="poetic-card" style="padding: 1.5rem;">
+    <div id="log-container" class="log-container">
+        <div class="log-line log-line--INFO">Chờ nhận log từ bot...</div>
+    </div>
+</div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const logContainer = document.getElementById('log-container');
+    const MAX_LOGS = 200; // gioi han so dong log hien thi
+
+    // ket noi den socket server da co trong layout
+    const socket = io();
+
+    socket.on('log_entry', function (data) {
+        // tao element cho dong log moi
+        const logLine = document.createElement('div');
+        logLine.classList.add('log-line');
+        logLine.classList.add(`log-line--${data.level.toUpperCase()}`);
+        logLine.textContent = data.message;
+
+        // them vao dau container
+        logContainer.prepend(logLine);
+
+        // xoa log cu neu vuot qua gioi han
+        if (logContainer.children.length > MAX_LOGS) {
+            logContainer.lastChild.remove();
+        }
+    });
+});
+</script>
+
+{% endblock %}

@@ -690,6 +690,20 @@ def history(guild_id):
         guild_id=guild_id
     )
 
+@app.route('/edit/<int:guild_id>/logs')
+def logs(guild_id):
+    guild_details = discord_api_request(f"/guilds/{guild_id}")
+    if not guild_details:
+        flash("Không thể lấy thông tin server", "danger")
+        return redirect(url_for('index'))
+    
+    return render_template('logs.html', guild=guild_details, guild_id=guild_id)
+
+# SocketIO handlers
+@socketio.on('new_log')
+def handle_new_log(data):
+    # Phat lai log cho tat ca client dang xem trang log
+    socketio.emit('log_entry', data, broadcast=True)
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', debug=True, port=5001)
